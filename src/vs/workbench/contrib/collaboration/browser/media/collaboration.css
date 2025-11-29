@@ -1,0 +1,33 @@
+/* Make the collaboration icon look disabled and be non-clickable.
+   The icon is registered as 'collaboration-icon', which yields a codicon class
+   of `codicon-collaboration-icon`.
+
+   Strategy:
+   - Disable pointer events on the icon element itself so clicking the icon does nothing.
+   - Set the parent/hover selector to show a `not-allowed` cursor (circle with slash)
+     when hovering the action area that contains the icon.
+   - Use !important on cursor to override other cursor rules where needed.
+*/
+
+.codicon.codicon-collaboration-icon {
+  /* Prevent clicks on the icon itself */
+  pointer-events: none;
+  /* keep normal appearance; adjust opacity if you want a faded look */
+  opacity: 1;
+  cursor: default;
+}
+
+/* When hovering the surrounding action item / label, show not-allowed cursor */
+.monaco-action-bar .action-item:hover .codicon.codicon-collaboration-icon,
+.action-label.codicon.codicon-collaboration-icon,
+.viewlet .monaco-action-bar .action-item:hover .codicon.codicon-collaboration-icon,
+.title .codicon.codicon-collaboration-icon,
+.part.activitybar .monaco-action-bar .action-item:hover .codicon.codicon-collaboration-icon {
+  cursor: not-allowed !important;
+}
+
+/* If collaboration icon is shown inside buttons/toolbar elsewhere, also handle that */
+button .codicon.codicon-collaboration-icon,
+.monaco-button .codicon.codicon-collaboration-icon {
+  pointer-events: none;
+}

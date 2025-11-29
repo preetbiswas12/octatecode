@@ -1,0 +1,26 @@
+{
+  "name": "theme-cursor-blue",
+  "displayName": "Cursor Blue Theme",
+  "description": "Beautiful cursor blue color theme for Void IDE",
+  "version": "1.0.0",
+  "publisher": "void",
+  "type": "theme",
+  "engines": {
+    "vscode": "*"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "label": "cursor blue",
+        "uiTheme": "vs-dark",
+        "path": "./themes/cursor-blue-color-theme.json"
+      }
+    ]
+  },
+  "keywords": [
+    "theme",
+    "dark",
+    "blue",
+    "cursor"
+  ]
+}

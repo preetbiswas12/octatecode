@@ -1,0 +1,316 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Remote Cursor Styles */
+.remote-cursor-inline {
+	position: relative;
+	border-left: 2px solid currentColor;
+	margin: 0 -1px;
+}
+
+.remote-cursor-inline::after {
+	content: attr(data-user);
+	position: absolute;
+	top: -24px;
+	left: 0;
+	padding: 2px 6px;
+	background-color: currentColor;
+	color: white;
+	font-size: 11px;
+	white-space: nowrap;
+	border-radius: 3px;
+	font-weight: 500;
+	z-index: 1000;
+}
+
+/* Cursor glyph margin */
+.collaboration-cursor-glyph {
+	width: 12px;
+	height: 20px;
+	border-radius: 2px;
+	margin: 2px 2px;
+	border: 1px solid currentColor;
+}
+
+/* Line highlight for remote cursors */
+.collaboration-line-highlight {
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .collaboration-line-highlight {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Line indicator */
+.collaboration-line-indicator {
+	width: 12px;
+	height: 20px;
+	background-color: currentColor;
+	opacity: 0.4;
+	border-radius: 2px;
+}
+
+/* User Presence Panel */
+.collaboration-presence-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+}
+
+.collaboration-user-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background-color: var(--vscode-list-hoverBackground);
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.collaboration-user-item:hover {
+	background-color: var(--vscode-list-activeSelectionBackground);
+}
+
+/* User status indicator */
+.collaboration-user-status {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.collaboration-user-status.online {
+	background-color: #2ecc71; /* Green */
+	box-shadow: 0 0 4px rgba(46, 204, 113, 0.6);
+}
+
+.collaboration-user-status.idle {
+	background-color: #f39c12; /* Orange */
+	box-shadow: 0 0 4px rgba(243, 156, 18, 0.6);
+}
+
+.collaboration-user-status.offline {
+	background-color: #95a5a6; /* Grey */
+}
+
+/* User info */
+.collaboration-user-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+	min-width: 0;
+}
+
+.collaboration-user-name {
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.collaboration-user-role {
+	font-size: 10px;
+	opacity: 0.7;
+}
+
+.collaboration-user-activity {
+	font-size: 10px;
+	opacity: 0.6;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Collaboration Status Bar */
+.collaboration-status-bar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background-color: var(--vscode-statusBar-background);
+	border-top: 1px solid var(--vscode-statusBar-border);
+	font-size: 12px;
+}
+
+.collaboration-status-icon {
+	animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* Connection status */
+.collaboration-connection-status {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	background-color: var(--vscode-editor-background);
+	border-radius: 4px;
+	font-size: 11px;
+}
+
+.collaboration-connection-status.connected {
+	color: #2ecc71;
+}
+
+.collaboration-connection-status.connecting {
+	color: #f39c12;
+}
+
+.collaboration-connection-status.disconnected {
+	color: #e74c3c;
+}
+
+/* Operation Queue */
+.collaboration-operation-queue {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+}
+
+.collaboration-operation-indicator {
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background-color: #3498db;
+	animation: send-operation 0.6s ease-out;
+}
+
+@keyframes send-operation {
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	100% {
+		opacity: 0;
+		transform: scale(1.5);
+	}
+}
+
+/* Collaboration View Pane */
+.collaboration-view-pane {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.collaboration-view-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+	background-color: var(--vscode-sideBar-background);
+}
+
+.collaboration-view-title {
+	font-weight: 500;
+	font-size: 13px;
+}
+
+.collaboration-view-actions {
+	display: flex;
+	gap: 4px;
+}
+
+.collaboration-view-button {
+	padding: 2px 6px;
+	background-color: var(--vscode-button-background);
+	color: var(--vscode-button-foreground);
+	border: none;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 11px;
+}
+
+.collaboration-view-button:hover {
+	background-color: var(--vscode-button-hoverBackground);
+}
+
+.collaboration-view-content {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px;
+}
+
+/* Collaboration Info Box */
+.collaboration-info-box {
+	padding: 12px;
+	background-color: var(--vscode-notebookStatusSuccessIcon-foreground);
+	border-left: 4px solid var(--vscode-notebookStatusSuccessIcon-foreground);
+	border-radius: 4px;
+	color: var(--vscode-editor-foreground);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.collaboration-info-box.warning {
+	background-color: #fff3cd;
+	border-left-color: #ffc107;
+	color: #856404;
+}
+
+.collaboration-info-box.error {
+	background-color: #f8d7da;
+	border-left-color: #dc3545;
+	color: #721c24;
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(-20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.collaboration-animation-fade-in {
+	animation: fadeIn 0.3s ease-out;
+}
+
+.collaboration-animation-slide-in {
+	animation: slideIn 0.3s ease-out;
+}
+
+/* Theme Support */
+.dark .collaboration-user-item {
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .collaboration-user-item:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light .collaboration-user-item {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light .collaboration-user-item:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}

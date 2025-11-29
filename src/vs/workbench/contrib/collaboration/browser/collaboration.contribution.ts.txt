@@ -1,0 +1,589 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { registerAction2, Action2, MenuId } from '../../../../platform/actions/common/actions.js';
+import { Categories } from '../../../../platform/action/common/actionCommonCategories.js';
+import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
+import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
+import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+import { showCreateRoomDialog, showJoinRoomDialog } from './dialogs/collaborationDialogs.js';
+import { Codicon } from '../../../../base/common/codicons.js';
+import { localize, localize2 } from '../../../../nls.js';
+import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
+import './media/collaboration.css';
+import { getActiveWindow, isHTMLElement, disposableWindowInterval } from '../../../../base/browser/dom.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
+import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContainer.js';
+import { Extensions as ViewExtensions, IViewContainersRegistry, IViewDescriptor, IViewsRegistry, ViewContainerLocation } from '../../../common/views.js';
+import { CollaborationViewPane } from './collaborationViewPane.js';
+import { supabaseService } from './supabaseService.js';
+import { collaborationState } from './collaborationState.js';
+import { websocketService } from './websocketService.js';
+
+// Register collaboration icon - using combine icon to distinguish from profile
+const collaborationIcon = registerIcon('collaboration-icon', Codicon.combine, localize('collaborationIcon', 'Collaboration'));
+
+// View constants
+const COLLABORATION_VIEWLET_ID = 'workbench.view.collaboration';
+const COLLABORATION_VIEW_ID = 'workbench.collaboration.view';
+
+// Register view container in sidebar
+const viewContainer = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+	id: COLLABORATION_VIEWLET_ID,
+	title: localize2('collaboration', "Collaboration"),
+	ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [COLLABORATION_VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }]),
+	hideIfEmpty: false,
+	icon: collaborationIcon,
+	order: 5,
+}, ViewContainerLocation.Sidebar, { doNotRegisterOpenCommand: true });
+
+// Register collaboration view
+const viewDescriptor: IViewDescriptor = {
+	id: COLLABORATION_VIEW_ID,
+	containerIcon: collaborationIcon,
+	name: localize2('collaboration', "Collaboration"),
+	ctorDescriptor: new SyncDescriptor(CollaborationViewPane),
+	canToggleVisibility: true,
+	canMoveView: true,
+	openCommandActionDescriptor: {
+		id: COLLABORATION_VIEWLET_ID,
+		mnemonicTitle: localize({ key: 'miViewCollaboration', comment: ['&& denotes a mnemonic'] }, "&&Collaboration"),
+		keybindings: {
+			primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF,
+			when: ContextKeyExpr.regex('neverMatch', /doesNotMatch/)
+		},
+		order: 5
+	}
+};
+
+// Register view
+Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([viewDescriptor], viewContainer);
+
+
+/**
+ * Command: Start Collaboration as Host
+ */
+registerAction2(class StartCollaborationAsHostAction extends Action2 {
+	public static readonly ID = 'collaboration.startAsHost';
+	public static readonly LABEL = 'Start Collaboration (Create Room)';
+
+	constructor() {
+		super({
+			id: StartCollaborationAsHostAction.ID,
+			title: localize2('startCollaboration', 'Start Collaboration (Create Room)'),
+			category: Categories.File,
+			f1: true,
+			menu: [
+				{
+					id: MenuId.EditorContext,
+					group: '9_zzz_collaboration',
+					order: 1
+				},
+				{
+					id: MenuId.CommandPalette,
+					group: '',
+					order: 1
+				}
+			]
+		});
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+disposableWindowInterval(getActiveWindow(), () => tryDisableCollabActivityEntry(), 200, 20);// we avoid direct global timer usage and support multi-window scenarios.// Poll using the disposableWindowInterval helper tied to the active window so};
+	return false;	}		return true;		}			// ignore		} catch {			(parent as HTMLElement).tabIndex = -1;		try {		parent.setAttribute('aria-disabled', 'true');		parent.style.pointerEvents = 'none';	if (parent && isHTMLElement(parent)) {
+	const parent = (icon as Element).closest('.action-item, button, .monaco-action-bar .action-item, .composite-bar .action-item, .activitybar .action-item');	}		return false;	if (!icon) {	const icon = doc.querySelector('.codicon.codicon-collaboration-icon');	const doc = activeWindow.document;	const activeWindow = getActiveWindow();const tryDisableCollabActivityEntry = (): boolean => {// focus to make the sidebar icon unclickable while keeping it visible.// find its ancestor action item/button and disable pointer events and keyboard// The activity bar entry contains a `codicon-collaboration-icon` element; we// Disable clicks on the Activity Bar entry for the collaboration view.});	}		}			notificationService.error(`Failed to end collaboration: ${error}`);		} catch (error) {
+			notificationService.info('✅ Collaboration session ended');			collaborationState.endSession();
+			// Update global state			websocketService.disconnect();
+			// Disconnect WebSocket			await supabaseService.endSession(session.room.roomId);
+			// End in Supabase			}				return;				notificationService.warn('No active collaboration session to end');			if (!session) {			const session = collaborationState.getActiveSession();
+		try {		const notificationService = accessor.get(INotificationService);
+	public async run(accessor: ServicesAccessor): Promise<void> {	}		});			]				}					order: 3					group: '',					id: MenuId.CommandPalette,				{				},					order: 3					group: '9_zzz_collaboration',					id: MenuId.EditorContext,				{			menu: [			f1: true,			category: Categories.File,			title: localize2('endCollaboration', 'End Collaboration'),			id: EndCollaborationAction.ID,		super({
+	constructor() {	public static readonly LABEL = 'End Collaboration';	public static readonly ID = 'collaboration.end';registerAction2(class EndCollaborationAction extends Action2 { */ * Command: End Collaboration/**});	}		}			notificationService.error(`Failed to join collaboration: ${error}`);		} catch (error) {			}				);					`⚠️ Joined room but real-time sync unavailable\n👤 Joined as: ${result.userName}`				notificationService.warn(				console.warn('WebSocket connection failed:', wsError);			} catch (wsError) {				); notificationService.info(`✅ Joined collaboration room: ${room.name}\n👤 Joined as: ${result.userName}\n🔌 Connected for real-time sync`);					room.version || 0					room.content || '',					room.fileId || 'default',					room.name || 'Collaboration Room',				websocketService.sendRoomCreationData(				// This mirrors the startAsHost flow and allows guests to sync properly
+				// Send join-room with full room data to ensure backend creates room in memory				await websocketService.connect(wsUrl, room.roomId, userId, result.userName);				const wsUrl = 'wss://octate.qzz.io/collaborate';			try {
+			// Connect WebSocket for real-time sync			});				startedAt: new Date()				isHost: false,				userName: result.userName,				userId,				room,			collaborationState.startSession({
+			// Update global state			const room = await supabaseService.joinRoom(result.sessionId, userId, result.userName);			const userId = Math.random().toString(36).substring(2, 11);
+			// Join room in Supabase			}				return;			if (!result) {			const result = await showJoinRoomDialog();
+		try {		const notificationService = accessor.get(INotificationService);
+	public async run(accessor: ServicesAccessor): Promise<void> {	}		});			]				}					order: 2					group: '',					id: MenuId.CommandPalette,				{				},					order: 2					group: '9_zzz_collaboration',					id: MenuId.EditorContext,				{			menu: [			f1: true,			category: Categories.File,			title: localize2('joinCollaboration', 'Join Collaboration (Join Room)'),			id: JoinCollaborationAsGuestAction.ID,		super({
+	constructor() {	public static readonly LABEL = 'Join Collaboration (Join Room)';	public static readonly ID = 'collaboration.joinAsGuest';registerAction2(class JoinCollaborationAsGuestAction extends Action2 { */ * Command: Join Collaboration as Guest/**});	}		}			notificationService.error(`Failed to start collaboration: ${error}`);		} catch (error) {			}				);					`⚠️ Collaboration room created but real-time sync unavailable\n📋 Room ID: ${room.roomId}`				notificationService.warn(				console.warn('WebSocket connection failed, operations will be stored but not synced in real-time:', wsError);			} catch (wsError) {				);					`✅ Collaboration room created: ${result.roomName}\n📋 Room ID: ${room.roomId}\n📁 Workspace: ${workspaceDisplayName}\n👤 Host: ${result.userName}\n🔌 Connected for real-time sync`
+				/*---------------------------------------------------------------------------------------------
+				 *  Copyright (c) Microsoft Corporation. All rights reserved.
+				 *  Licensed under the MIT License. See License.txt in the project root for license information.
+				 *--------------------------------------------------------------------------------------------*/
+
+				import { registerAction2, Action2, MenuId } from '../../../../platform/actions/common/actions.js';
+				import { Categories } from '../../../../platform/action/common/actionCommonCategories.js';
+				import { KeyCode, KeyMod } from '../../../../base/common/keyCodes.js';
+				import { ContextKeyExpr } from '../../../../platform/contextkey/common/contextkey.js';
+				import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+				import { INotificationService } from '../../../../platform/notification/common/notification.js';
+				import { IWorkspaceContextService } from '../../../../platform/workspace/common/workspace.js';
+				import { showCreateRoomDialog, showJoinRoomDialog } from './dialogs/collaborationDialogs.js';
+				import { Codicon } from '../../../../base/common/codicons.js';
+				import { localize, localize2 } from '../../../../nls.js';
+				import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
+				import { Registry } from '../../../../platform/registry/common/platform.js';
+				import { SyncDescriptor } from '../../../../platform/instantiation/common/descriptors.js';
+				import { ViewPaneContainer } from '../../../browser/parts/views/viewPaneContainer.js';
+				import { Extensions as ViewExtensions, IViewContainersRegistry, IViewDescriptor, IViewsRegistry, ViewContainerLocation } from '../../../common/views.js';
+				import { CollaborationViewPane } from './collaborationViewPane.js';
+				import { supabaseService } from './supabaseService.js';
+				import { collaborationState } from './collaborationState.js';
+				import { websocketService } from './websocketService.js';
+
+				// Register collaboration icon - using combine icon to distinguish from profile
+				const collaborationIcon = registerIcon('collaboration-icon', Codicon.combine, localize('collaborationIcon', 'Collaboration'));
+
+				// View constants
+				const COLLABORATION_VIEWLET_ID = 'workbench.view.collaboration';
+				const COLLABORATION_VIEW_ID = 'workbench.collaboration.view';
+
+				// Register view container in sidebar
+				const viewContainer = Registry.as<IViewContainersRegistry>(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+					id: COLLABORATION_VIEWLET_ID,
+					title: localize2('collaboration', "Collaboration"),
+					ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [COLLABORATION_VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }]),
+					hideIfEmpty: false,
+					icon: collaborationIcon,
+					order: 5,
+				}, ViewContainerLocation.Sidebar, { doNotRegisterOpenCommand: true });
+
+				// Register collaboration view
+				const viewDescriptor: IViewDescriptor = {
+					id: COLLABORATION_VIEW_ID,
+					containerIcon: collaborationIcon,
+					name: localize2('collaboration', "Collaboration"),
+					ctorDescriptor: new SyncDescriptor(CollaborationViewPane),
+					canToggleVisibility: true,
+					canMoveView: true,
+					openCommandActionDescriptor: {
+						id: COLLABORATION_VIEWLET_ID,
+						mnemonicTitle: localize({ key: 'miViewCollaboration', comment: ['&& denotes a mnemonic'] }, "&&Collaboration"),
+						keybindings: {
+							primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyF,
+							when: ContextKeyExpr.regex('neverMatch', /doesNotMatch/)
+						},
+						order: 5
+					}
+				};
+
+				// Register view
+				Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([viewDescriptor], viewContainer);
+
+
+				/**
+				 * Command: Start Collaboration as Host
+				 */
+				registerAction2(class StartCollaborationAsHostAction extends Action2 {
+					public static readonly ID = 'collaboration.startAsHost';
+					public static readonly LABEL = 'Start Collaboration (Create Room)';
+
+					constructor() {
+						super({
+							id: StartCollaborationAsHostAction.ID,
+							title: localize2('startCollaboration', 'Start Collaboration (Create Room)'),
+							category: Categories.File,
+							f1: true,
+							menu: [
+								{
+									id: MenuId.EditorContext,
+									group: '9_zzz_collaboration',
+									order: 1
+								},
+								{
+									id: MenuId.CommandPalette,
+									group: '',
+									order: 1
+								}
+							]
+						});
+					}
+
+					public async run(accessor: ServicesAccessor): Promise<void> {
+						const notificationService = accessor.get(INotificationService);
+						const workspaceService = accessor.get(IWorkspaceContextService);
+
+						try {
+							const result = await showCreateRoomDialog();
+							if (!result) {
+								return;
+							}
+
+							// Get all workspace folders
+							const workspace = workspaceService.getWorkspace();
+							const workspaceFolders = workspace.folders;
+
+							// Use the first workspace folder name, or 'Workspace'
+							let workspaceDisplayName = 'Workspace';
+							let workspacePath = '';
+
+							if (workspaceFolders.length > 0) {
+								const firstFolder = workspaceFolders[0];
+								workspaceDisplayName = firstFolder.name;
+								workspacePath = firstFolder.uri.fsPath;
+							}
+
+							// Save to Supabase with the workspace path (covers all files)
+							const hostId = Math.random().toString(36).substring(2, 11);
+							const room = await supabaseService.createRoom(result.roomName, result.userName, hostId, workspacePath);
+
+							// Update global state
+							collaborationState.startSession({
+								room,
+								userId: hostId,
+								userName: result.userName,
+								isHost: true,
+								startedAt: new Date()
+							});
+
+							// Connect WebSocket for real-time sync
+							try {
+								const wsUrl = 'wss://octate.qzz.io/collaborate';
+								await websocketService.connect(wsUrl, room.roomId, hostId, result.userName);
+
+								// Send room creation data to WebSocket server with workspace path
+								websocketService.sendRoomCreationData(result.roomName, workspacePath, '', 0);
+
+								notificationService.info(
+									`✅ Collaboration room created: ${result.roomName}\n📋 Room ID: ${room.roomId}\n📁 Workspace: ${workspaceDisplayName}\n👤 Host: ${result.userName}\n🔌 Connected for real-time sync`
+								);
+							} catch (wsError) {
+								console.warn('WebSocket connection failed, operations will be stored but not synced in real-time:', wsError);
+								notificationService.warn(
+									`⚠️ Collaboration room created but real-time sync unavailable\n📋 Room ID: ${room.roomId}`
+								);
+							}
+						} catch (error) {
+							notificationService.error(`Failed to start collaboration: ${error}`);
+						}
+					}
+				});
+
+				/**
+				 * Command: Join Collaboration as Guest
+				 */
+				registerAction2(class JoinCollaborationAsGuestAction extends Action2 {
+					public static readonly ID = 'collaboration.joinAsGuest';
+					public static readonly LABEL = 'Join Collaboration (Join Room)';
+
+					constructor() {
+						super({
+							id: JoinCollaborationAsGuestAction.ID,
+							title: localize2('joinCollaboration', 'Join Collaboration (Join Room)'),
+							category: Categories.File,
+							f1: true,
+							menu: [
+								{
+									id: MenuId.EditorContext,
+									group: '9_zzz_collaboration',
+									order: 2
+								},
+								{
+									id: MenuId.CommandPalette,
+									group: '',
+									order: 2
+								}
+							]
+						});
+					}
+
+					public async run(accessor: ServicesAccessor): Promise<void> {
+						const notificationService = accessor.get(INotificationService);
+
+						try {
+							const result = await showJoinRoomDialog();
+							if (!result) {
+								return;
+							}
+
+							// Join room in Supabase
+							const userId = Math.random().toString(36).substring(2, 11);
+							const room = await supabaseService.joinRoom(result.sessionId, userId, result.userName);
+
+							// Update global state
+							collaborationState.startSession({
+								room,
+								userId,
+								userName: result.userName,
+								isHost: false,
+								startedAt: new Date()
+							});
+
+							// Connect WebSocket for real-time sync
+							try {
+								const wsUrl = 'wss://octate.qzz.io/collaborate';
+								await websocketService.connect(wsUrl, room.roomId, userId, result.userName);
+
+								// Send join-room with full room data to ensure backend creates room in memory
+								// This mirrors the startAsHost flow and allows guests to sync properly
+								websocketService.sendRoomCreationData(
+									room.name || 'Collaboration Room',
+									room.fileId || 'default',
+									room.content || '',
+									room.version || 0
+								); notificationService.info(`✅ Joined collaboration room: ${room.name}\n👤 Joined as: ${result.userName}\n🔌 Connected for real-time sync`);
+							} catch (wsError) {
+								console.warn('WebSocket connection failed:', wsError);
+								notificationService.warn(
+									`⚠️ Joined room but real-time sync unavailable\n👤 Joined as: ${result.userName}`
+								);
+							}
+						} catch (error) {
+							notificationService.error(`Failed to join collaboration: ${error}`);
+						}
+					}
+				});
+
+				/**
+				 * Command: End Collaboration
+				 */
+				registerAction2(class EndCollaborationAction extends Action2 {
+					public static readonly ID = 'collaboration.end';
+					public static readonly LABEL = 'End Collaboration';
+
+					constructor() {
+						super({
+							id: EndCollaborationAction.ID,
+							title: localize2('endCollaboration', 'End Collaboration'),
+							category: Categories.File,
+							f1: true,
+							menu: [
+								{
+									id: MenuId.EditorContext,
+									group: '9_zzz_collaboration',
+									order: 3
+								},
+								{
+									id: MenuId.CommandPalette,
+									group: '',
+									order: 3
+								}
+							]
+						});
+					}
+
+					public async run(accessor: ServicesAccessor): Promise<void> {
+						const notificationService = accessor.get(INotificationService);
+
+						try {
+							const session = collaborationState.getActiveSession();
+							if (!session) {
+								notificationService.warn('No active collaboration session to end');
+								return;
+							}
+
+							// End in Supabase
+							await supabaseService.endSession(session.room.roomId);
+
+							// Disconnect WebSocket
+							websocketService.disconnect();
+
+							// Update global state
+							collaborationState.endSession();
+
+							notificationService.info('✅ Collaboration session ended');
+						} catch (error) {
+							notificationService.error(`Failed to end collaboration: ${error}`);
+						}
+					}
+				});
+
+				// The activity bar entry contains a `codicon-collaboration-icon` element; it is left as-is.

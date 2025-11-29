@@ -1,0 +1,6 @@
+i have made the icon for octatcode collaboration make unclickable an unsuable but the system unusable till i make the backend peer to peer.
+
+the file is src\vs\workbench\contrib\collaboration\browser\collaboration.contribution.ts
+
+and the css file is
+src\vs\workbench\contrib\collaboration\browser\media\collaboration.css
