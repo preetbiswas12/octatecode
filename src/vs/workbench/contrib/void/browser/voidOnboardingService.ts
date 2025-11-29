@@ -10,7 +10,7 @@ import { ServicesAccessor } from '../../../../editor/browser/editorExtensions.js
 import { mountVoidOnboarding } from './react/out/void-onboarding/index.js'
 import { h, getActiveWindow } from '../../../../base/browser/dom.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
-import { IEnvironmentService } from '../../services/environment/common/environment.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
 import { IVoidSettingsService } from '../common/voidSettingsService.js';
