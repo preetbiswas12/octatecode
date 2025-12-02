@@ -9,6 +9,22 @@
   "main": "./out/main.js",
   "type": "module",
   "private": true,
+  "build": {
+    "appId": "com.octatecode.octatecode",
+    "productName": "Octatecode",
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out",
+      "node_modules",
+      "product.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
   "scripts": {
     "buildreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js && cd ../../../../../../../",
     "watchreact": "cd ./src/vs/workbench/contrib/void/browser/react/ && node build.js --watch && cd ../../../../../../../",
@@ -21,6 +37,7 @@
     "preinstall": "node build/npm/preinstall.js",
     "postinstall": "node build/npm/postinstall.js",
     "compile": "node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js compile",
+    "vscode-win32-x64": "node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js vscode-win32-x64",
     "watch": "npm-run-all -lp watch-client watch-extensions",
     "watchd": "deemon npm run watch",
     "watch-webd": "deemon npm run watch-web",
@@ -59,11 +76,12 @@
     "eslint": "node build/eslint",
     "stylelint": "node build/stylelint",
     "playwright-install": "npm exec playwright install",
-    "compile-build": "node ./node_modules/gulp/bin/gulp.js compile-build-with-mangling",
-    "compile-extensions-build": "node ./node_modules/gulp/bin/gulp.js compile-extensions-build",
+    "compile-build": "node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js compile-build-without-mangling",
+    "compile-extensions-build": "node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js compile-extensions-build",
     "minify-vscode": "node ./node_modules/gulp/bin/gulp.js minify-vscode",
     "minify-vscode-reh": "node ./node_modules/gulp/bin/gulp.js minify-vscode-reh",
     "minify-vscode-reh-web": "node ./node_modules/gulp/bin/gulp.js minify-vscode-reh-web",
+    "win32": "node --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js vscode-win32-x64-system-setup",
     "hygiene": "node ./node_modules/gulp/bin/gulp.js hygiene",
     "core-ci": "node ./node_modules/gulp/bin/gulp.js core-ci",
     "core-ci-pr": "node ./node_modules/gulp/bin/gulp.js core-ci-pr",
@@ -87,13 +105,12 @@
     "@vscode/iconv-lite-umd": "0.7.0",
     "@vscode/policy-watcher": "^1.3.0",
     "@vscode/proxy-agent": "^0.32.0",
-    "@vscode/ripgrep": "^1.15.11",
-    "@vscode/spdlog": "^0.15.0",
-    "@vscode/sqlite3": "5.1.8-vscode",
+    "@vscode/spdlog": "^0.15.4",
+    "@vscode/sqlite3": "^5.1.8-vscode",
     "@vscode/sudo-prompt": "9.3.1",
     "@vscode/tree-sitter-wasm": "^0.1.4",
     "@vscode/vscode-languagedetection": "1.0.21",
-    "@vscode/windows-mutex": "^0.5.0",
+    "@vscode/windows-mutex": "^0.5.2",
     "@vscode/windows-process-tree": "^0.6.0",
     "@vscode/windows-registry": "^1.1.0",
     "@xterm/addon-clipboard": "^0.2.0-beta.82",
@@ -120,7 +137,7 @@
     "marked": "^15.0.11",
     "minimist": "^1.2.6",
     "native-is-elevated": "0.7.0",
-    "native-keymap": "^3.3.5",
+    "native-keymap": "^3.3.7",
     "native-watchdog": "^1.4.1",
     "node-pty": "^1.1.0-beta33",
     "ollama": "^0.5.15",
@@ -140,6 +157,7 @@
     "yazl": "^2.4.3"
   },
   "devDependencies": {
+    "@emnapi/runtime": "^1.7.1",
     "@playwright/test": "^1.50.0",
     "@stylistic/eslint-plugin-ts": "^2.8.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -150,6 +168,7 @@
     "@types/gulp-svgmin": "^1.2.1",
     "@types/http-proxy-agent": "^2.0.1",
     "@types/kerberos": "^1.1.2",
+    "@types/minimatch": "^6.0.0",
     "@types/minimist": "^1.2.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "20.x",
@@ -169,6 +188,7 @@
     "@typescript-eslint/utils": "^8.8.0",
     "@vscode/gulp-electron": "^1.36.0",
     "@vscode/l10n-dev": "0.0.35",
+    "@vscode/ripgrep": "^1.17.0",
     "@vscode/telemetry-extractor": "^1.10.2",
     "@vscode/test-cli": "^0.0.6",
     "@vscode/test-electron": "^2.4.0",
@@ -186,6 +206,7 @@
     "debounce": "^1.0.0",
     "deemon": "^1.8.0",
     "electron": "34.3.2",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.11.1",
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-header": "3.1.1",

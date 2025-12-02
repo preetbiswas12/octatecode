@@ -12,6 +12,7 @@ import { OllamaSetupInstructions, OneClickSwitchButton, SettingsForProvider, Mod
 import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js';
 import ErrorBoundary from '../sidebar-tsx/ErrorBoundary.js';
 import { isLinux } from '../../../../../../../base/common/platform.js';
+import { StorageScope, StorageTarget } from '../../../../../../../platform/storage/common/storage.js';
 
 const OVERRIDE_VALUE = false;
 
@@ -133,7 +134,7 @@ const AddProvidersPage = ({ pageIndex, setPageIndex }: { pageIndex: number, setP
 
 	// Clear error message after 5 seconds
 	useEffect(() => {
-		let timeoutId: NodeJS.Timeout | null = null;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 		if (errorMessage) {
 			timeoutId = setTimeout(() => {
@@ -327,11 +328,11 @@ const NextButton = ({ onClick, ...props }: { onClick: () => void } & React.Butto
 				: 'hover:bg-zinc-100'
 				} rounded text-black duration-600 transition-all
 			`}
-			{...disabled && {
+			{...(disabled ? {
 				'data-tooltip-id': 'void-tooltip',
 				"data-tooltip-content": 'Please enter all required fields or choose another provider', // (double-click to proceed anyway, can come back in Settings)
 				"data-tooltip-place": 'top',
-			}}
+			} : {})}
 			{...buttonProps}
 		>
 			Next
@@ -550,9 +551,9 @@ const VoidOnboardingContent = () => {
 					voidMetricsService.capture('Completed Onboarding', { selectedProviderName, wantToUseOption });
 					// Ensure the window restore behavior is enabled so users return to where they left off
 					try {
-						await configurationService.updateValue('window.restoreWindows', 'all');
-						storageService.store('void-seen-previous-install', 'true', /* scope */ 1 /* StorageScope.APPLICATION */, /* target */ 2 /* StorageTarget.MACHINE */);
-					} catch (e) {
+									await configurationService.updateValue('window.restoreWindows', 'all');
+									storageService.store('void-seen-previous-install', 'true', /* scope */ StorageScope.APPLICATION, /* target */ StorageTarget.MACHINE);
+								} catch (e) {
 						// ignore errors updating configuration/storage
 					}
 				}}
