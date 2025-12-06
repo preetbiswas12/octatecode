@@ -10,12 +10,20 @@ import {
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import minimatch from 'minimatch';
 import { Utils } from 'vscode-uri';
 import { findPreferredPM } from './preferred-pm';
 import { readScripts } from './readScripts';
 
 const excludeRegex = new RegExp('^(node_modules|.vscode-test)$', 'i');
+
+// Lazy-loaded to avoid TypeScript type resolution during bundling
+let minimatch: any;
+function getMinimatch() {
+	if (!minimatch) {
+		minimatch = require('minimatch');
+	}
+	return minimatch;
+}
 
 export interface INpmTaskDefinition extends TaskDefinition {
 	script: string;
@@ -244,7 +252,7 @@ export function isAutoDetectionEnabled(folder?: WorkspaceFolder): boolean {
 
 function isExcluded(folder: WorkspaceFolder, packageJsonUri: Uri) {
 	function testForExclusionPattern(path: string, pattern: string): boolean {
-		return minimatch(path, pattern, { dot: true });
+		return getMinimatch()(path, pattern, { dot: true });
 	}
 
 	const exclude = workspace.getConfiguration('npm', folder.uri).get<string | string[]>('exclude');

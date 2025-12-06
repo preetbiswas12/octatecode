@@ -348,7 +348,7 @@ export class GitHubServer implements IGitHubServer {
 		if (error.message === CANCELLATION_ERROR) {
 			throw error;
 		}
-		this._logger.error(error.message ?? error);
+		this._logger.error(error.message ?? error.toString());
 		return error.message === USER_CANCELLATION_ERROR;
 	}
 }

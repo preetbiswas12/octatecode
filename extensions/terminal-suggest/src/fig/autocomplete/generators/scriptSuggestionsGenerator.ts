@@ -48,10 +48,22 @@ export async function getScriptSuggestions(
 				cwd: currentWorkingDirectory,
 				env: environmentVariables
 			};
-		} else {
+		} else if (typeof commandToRun === 'string') {
 			executeCommandInput = {
+				command: commandToRun,
+				args: [],
 				cwd: currentWorkingDirectory,
-				...commandToRun,
+				env: environmentVariables
+			};
+		} else {
+			// commandToRun is ExecuteCommandInput object
+			const baseInput = commandToRun as Fig.ExecuteCommandInput;
+			executeCommandInput = {
+				command: baseInput.command ?? '',
+				args: baseInput.args ?? [],
+				cwd: currentWorkingDirectory,
+				env: environmentVariables,
+				timeout: baseInput.timeout,
 			};
 		}
 

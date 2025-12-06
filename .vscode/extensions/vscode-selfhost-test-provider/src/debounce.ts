@@ -7,7 +7,7 @@
  * Debounces the function call for an interval.
  */
 export function debounce(duration: number, fn: () => void): (() => void) & { clear: () => void } {
-	let timeout: NodeJS.Timeout | void;
+	let timeout: NodeJS.Timeout | undefined;
 	const debounced = () => {
 		if (timeout !== undefined) {
 			clearTimeout(timeout);

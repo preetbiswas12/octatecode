@@ -4,6 +4,9 @@
 		"moduleResolution": "nodenext",
 		"moduleDetection": "legacy",
 		"experimentalDecorators": true,
+		  "types": [
+               "minimatch"
+			],
 		"noImplicitReturns": true,
 		"noImplicitOverride": true,
 		"noUnusedLocals": true,

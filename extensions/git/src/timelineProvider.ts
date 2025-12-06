@@ -191,7 +191,7 @@ export class GitTimelineProvider implements TimelineProvider {
 			}
 		} else {
 			// If we are not getting everything, ask for 1 more than so we can determine if there are more commits
-			limit = options.limit === undefined ? undefined : options.limit + 1;
+			limit = options.limit === undefined ? undefined : (typeof options.limit === 'number' ? options.limit + 1 : undefined);
 		}
 
 		await ensureEmojis();

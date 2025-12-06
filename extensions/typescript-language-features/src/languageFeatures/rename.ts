@@ -45,7 +45,7 @@ class TypeScriptRenameProvider implements vscode.RenameProvider {
 			case 'rename': {
 				const renameInfo = response.body.info;
 				if (!renameInfo.canRename) {
-					return Promise.reject<vscode.Range>(renameInfo.localizedErrorMessage);
+					return Promise.reject<vscode.Range>((renameInfo as any).localizedErrorMessage);
 				}
 				return typeConverters.Range.fromTextSpan(renameInfo.triggerSpan);
 			}
@@ -77,7 +77,7 @@ class TypeScriptRenameProvider implements vscode.RenameProvider {
 			case 'rename': {
 				const renameInfo = response.body.info;
 				if (!renameInfo.canRename) {
-					return Promise.reject<vscode.WorkspaceEdit>(renameInfo.localizedErrorMessage);
+					return Promise.reject<vscode.WorkspaceEdit>((renameInfo as any).localizedErrorMessage);
 				}
 
 				if (renameInfo.fileToRename) {

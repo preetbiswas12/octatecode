@@ -267,7 +267,7 @@ export class GitHistoryProvider implements SourceControlHistoryProvider, FileDec
 
 		try {
 			if (options.limit === undefined || typeof options.limit === 'number') {
-				logOptions = { ...logOptions, maxEntries: options.limit ?? 50 };
+				logOptions = { ...logOptions, maxEntries: (typeof options.limit === 'number' ? options.limit : undefined) ?? 50 };
 			} else if (typeof options.limit.id === 'string') {
 				// Get the common ancestor commit, and commits
 				const commit = await this.repository.getCommit(options.limit.id);

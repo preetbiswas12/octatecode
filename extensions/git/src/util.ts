@@ -448,7 +448,7 @@ export class PromiseSource<T> {
 			if (completion.success) {
 				return completion.value;
 			} else {
-				throw completion.err;
+				throw (completion as { success: false; err: any }).err;
 			}
 		});
 	}
