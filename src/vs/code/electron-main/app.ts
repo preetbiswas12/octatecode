@@ -133,6 +133,8 @@ import { LLMMessageChannel } from '../../workbench/contrib/void/electron-main/se
 import { VoidSCMService } from '../../workbench/contrib/void/electron-main/voidSCMMainService.js';
 import { IVoidSCMService } from '../../workbench/contrib/void/common/voidSCMTypes.js';
 import { MCPChannel } from '../../workbench/contrib/void/electron-main/mcpChannel.js';
+import { persistentMemoryChannel } from '../../workbench/contrib/void/electron-main/persistentMemory/persistentMemoryChannel.js';
+import { setGlobalLLMMessageChannel } from '../../workbench/contrib/void/electron-main/llmMessageChannelBridge.js';
 /**
  * The main VS Code application. There will only ever be one instance,
  * even if the user starts many instances (e.g. from the command line).
@@ -1245,6 +1247,12 @@ export class CodeApplication extends Disposable {
 
 		const sendLLMMessageChannel = new LLMMessageChannel(accessor.get(IMetricsService));
 		mainProcessElectronServer.registerChannel('void-channel-llmMessage', sendLLMMessageChannel);
+
+		// Register the channel globally so persistent memory can access it
+		setGlobalLLMMessageChannel(sendLLMMessageChannel);
+
+		const persistentMemoryIpcChannel = persistentMemoryChannel;
+		mainProcessElectronServer.registerChannel('void-channel-persistentMemory', persistentMemoryIpcChannel);
 
 		// Void added this
 		const voidSCMChannel = ProxyChannel.fromService(accessor.get(IVoidSCMService), disposables);

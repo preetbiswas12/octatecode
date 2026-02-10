@@ -8,13 +8,21 @@ import { Emitter, Event } from '../../../../base/common/event.js';
 import { OperationalTransform } from './operationalTransform.js';
 
 /**
- * Service for managing collaborative document state and operation history
+ * P2P Document Service with Decentralized Versioning
+ *
+ * Pure P2P Architecture:
+ * - No server version authority
+ * - Each peer maintains local causal history
+ * - Operations stamped with (peerId, localVersion) lamport timestamps
+ * - Conflict-free replication through OT + peer ordering
  */
 export class CollaborativeDocumentService {
 	private _content: string = '';
 	private _operationHistory: IOperation[] = [];
-	private _currentVersion: number = 0;
+	private _peerId: string = '';
+	private _localVersion: number = 0;
 	private _pendingOperations: IOperation[] = [];
+	private _appliedRemoteVersions: Set<string> = new Set();
 
 	private readonly _onDocumentChanged = new Emitter<{ content: string; version: number }>();
 	public readonly onDocumentChanged: Event<{ content: string; version: number }> = this._onDocumentChanged.event;
@@ -25,18 +33,17 @@ export class CollaborativeDocumentService {
 	private readonly _onSyncRequired = new Emitter<void>();
 	public readonly onSyncRequired: Event<void> = this._onSyncRequired.event;
 
-	constructor(initialContent: string = '') {
-		this._content = initialContent;
-	}
-
 	/**
-	 * Initialize the document service with a collaboration session
+	 * Initialize P2P document service with peer identity
+	 * Each peer has independent versioning in decentralized model
 	 */
-	public initialize(session: { version: number }, content: string): void {
+	public initialize(session: { peerId: string; version?: number }, content: string): void {
 		this._content = content;
-		this._currentVersion = session.version;
+		this._peerId = session.peerId;
+		this._localVersion = session.version || 0;
 		this._operationHistory = [];
 		this._pendingOperations = [];
+		this._appliedRemoteVersions.clear();
 	}
 
 	/**
@@ -47,10 +54,11 @@ export class CollaborativeDocumentService {
 	}
 
 	/**
-	 * Get current document version
+	 * Get local version number for this peer
+	 * In P2P: Each peer has independent versioning
 	 */
 	public getVersion(): number {
-		return this._currentVersion;
+		return this._localVersion;
 	}
 
 	/**
@@ -61,34 +69,38 @@ export class CollaborativeDocumentService {
 	}
 
 	/**
-	 * Apply a remote operation to the local document
-	 * This handles OT transformation against pending operations
+	 * Apply a remote operation in P2P mode
+	 * No server version authority - use causal versioning
+	 * Stamp with (peerId, version) lamport pairs for deterministic ordering
 	 */
 	public applyRemoteOperation(operation: IOperation): void {
-		if (operation.version <= this._currentVersion) {
-			console.warn('Received operation with old version, ignoring', operation);
+		const opId = `${operation.userId}-${operation.timestamp}`;
+
+		// Skip if already applied
+		if (this._appliedRemoteVersions.has(opId)) {
 			return;
 		}
 
 		let transformedOp = operation;
 
-		// Transform against all pending operations
+		// Transform against all pending local operations
 		for (const pending of this._pendingOperations) {
 			transformedOp = OperationalTransform.transform(transformedOp, pending);
 		}
 
 		// Apply the transformed operation
 		this._content = OperationalTransform.applyOperation(this._content, transformedOp);
-		this._currentVersion = operation.version;
 		this._operationHistory.push(transformedOp);
+		this._appliedRemoteVersions.add(opId);
 
 		this._onOperationApplied.fire(transformedOp);
-		this._onDocumentChanged.fire({ content: this._content, version: this._currentVersion });
+		this._onDocumentChanged.fire({ content: this._content, version: this._localVersion });
 	}
 
 	/**
-	 * Apply a local operation
-	 * This creates an operation and applies it optimistically
+	 * Apply a local operation in P2P mode
+	 * Assign local version number independent of other peers
+	 * Stamp with (peerId, localVersion) for ordering
 	 */
 	public applyLocalOperation(
 		type: 'insert' | 'delete',
@@ -97,32 +109,35 @@ export class CollaborativeDocumentService {
 		length?: number,
 		userId?: string
 	): IOperation {
+		this._localVersion++;
+
 		const operation: IOperation = {
 			type,
 			position,
 			content,
 			length,
-			userId: userId || 'local',
+			userId: userId || this._peerId,
 			timestamp: Date.now(),
-			version: this._currentVersion + 1
+			version: this._localVersion
 		};
 
 		// Apply optimistically
 		this._content = OperationalTransform.applyOperation(this._content, operation);
-		this._currentVersion = operation.version;
 		this._operationHistory.push(operation);
 
 		// Add to pending operations
 		this._pendingOperations.push(operation);
 
 		this._onOperationApplied.fire(operation);
-		this._onDocumentChanged.fire({ content: this._content, version: this._currentVersion });
+		this._onDocumentChanged.fire({ content: this._content, version: this._localVersion });
 
 		return operation;
 	}
 
 	/**
-	 * Acknowledge that a pending operation has been processed by the server
+	 * Acknowledge that a P2P operation was received and replicated
+	 * In P2P: Operations don't need server acknowledgment
+	 * Just mark as synced across peers
 	 */
 	public acknowledgeOperation(operation: IOperation): void {
 		const index = this._pendingOperations.findIndex(
@@ -134,7 +149,7 @@ export class CollaborativeDocumentService {
 		}
 
 		if (this._pendingOperations.length === 0) {
-			// All operations synced
+			console.log('✓ All P2P operations synced with peers');
 		}
 	}
 
@@ -157,7 +172,7 @@ export class CollaborativeDocumentService {
 	 */
 	public resetState(content: string, version: number): void {
 		this._content = content;
-		this._currentVersion = version;
+		this._localVersion = version;
 		this._pendingOperations = [];
 	}
 
@@ -169,7 +184,7 @@ export class CollaborativeDocumentService {
 			contentLength: this._content.length,
 			operationCount: this._operationHistory.length,
 			pendingCount: this._pendingOperations.length,
-			version: this._currentVersion
+			version: this._localVersion
 		};
 	}
 

@@ -12,6 +12,8 @@ import { EventLLMMessageOnTextParams, EventLLMMessageOnErrorParams, EventLLMMess
 import { sendLLMMessage } from './llmMessage/sendLLMMessage.js'
 import { IMetricsService } from '../common/metricsService.js';
 import { sendLLMMessageToProviderImplementation } from './llmMessage/sendLLMMessage.impl.js';
+import { threadManager } from './persistentMemory/threadManager.js';
+import { PersistedChatMessage } from './persistentMemory/messageStore.js';
 
 // NODE IMPLEMENTATION - calls actual sendLLMMessage() and returns listeners to it
 
@@ -50,6 +52,15 @@ export class LLMMessageChannel implements IServerChannel {
 		private readonly metricsService: IMetricsService,
 	) { }
 
+	// Track current thread for message persistence
+	private currentThreadId: string | null = null;
+	private currentFolderPath: string | null = null;
+
+	setCurrentThread(threadId: string, folderPath: string) {
+		this.currentThreadId = threadId;
+		this.currentFolderPath = folderPath;
+	}
+
 	// browser uses this to listen for changes
 	listen(_: unknown, event: string): Event<any> {
 		// text
@@ -70,6 +81,11 @@ export class LLMMessageChannel implements IServerChannel {
 		try {
 			if (command === 'sendLLMMessage') {
 				this._callSendLLMMessage(params)
+			}
+			else if (command === 'setCurrentThread') {
+				const { threadId, folderPath } = params;
+				this.setCurrentThread(threadId, folderPath);
+				return { success: true };
 			}
 			else if (command === 'abort') {
 				await this._callAbort(params)
@@ -103,6 +119,9 @@ export class LLMMessageChannel implements IServerChannel {
 			},
 			onFinalMessage: (p) => {
 				this.llmMessageEmitters.onFinalMessage.fire({ requestId, ...p });
+
+				// Auto-save AI response to persistent memory
+				this._saveAIResponseToPersistentMemory({ requestId, ...p });
 			},
 			onError: (p) => {
 				console.log('sendLLM: firing err');
@@ -149,8 +168,43 @@ export class LLMMessageChannel implements IServerChannel {
 		sendLLMMessageToProviderImplementation[providerName].list(mainThreadParams)
 	}
 
+	/**
+	 * Auto-save AI response to persistent memory.
+	 * Called when onFinalMessage fires.
+	 */
+	private _saveAIResponseToPersistentMemory(finalMessageParams: EventLLMMessageOnFinalMessageParams) {
+		// Only save if we have a current thread
+		if (!this.currentThreadId || !this.currentFolderPath) {
+			return;
+		}
 
+		const { fullText, fullReasoning } = finalMessageParams;
 
+		try {
+			// Create a persisted message object
+			const persistedMessage: PersistedChatMessage = {
+				role: 'assistant',
+				displayContent: fullText,
+				reasoning: fullReasoning || '',
+				anthropicReasoning: null,
+				_id: threadManager.generateMessageId(),
+				_timestamp: Date.now(),
+				_isComplete: true,
+			};
+
+			// Save asynchronously (don't block the response)
+			threadManager.saveMessage(
+				this.currentThreadId,
+				persistedMessage,
+				this.currentFolderPath,
+				true // updatePlanningFiles
+			).catch((error) => {
+				console.error('Failed to save AI response to persistent memory:', error);
+			});
+		} catch (error) {
+			console.error('Error in _saveAIResponseToPersistentMemory:', error);
+		}
+	}
 
 
 }

@@ -55,9 +55,18 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 			}
 
 			const isOnboardingComplete = !!voidSettingsService.state.globalSettings.isOnboardingComplete;
+			// Check if user explicitly requested to show onboarding again
+			const forceShowOnboarding = storageService.get('void-force-show-onboarding', StorageScope.APPLICATION) === 'true';
 
-			if (!isOnboardingComplete && !previousLogsExist) {
-				// Fresh install / first run: mount onboarding overlay
+			console.log('[Void Onboarding] Debug:', { isOnboardingComplete, previousLogsExist, forceShowOnboarding, logsPath: environmentService.logsHome.fsPath });
+
+			if ((!isOnboardingComplete && !previousLogsExist) || forceShowOnboarding) {
+				// Fresh install / first run, OR user explicitly reset onboarding: mount onboarding overlay
+				console.log('[Void Onboarding] Mounting onboarding...');
+				// Clear the force flag after showing onboarding once
+				if (forceShowOnboarding) {
+					storageService.remove('void-force-show-onboarding', StorageScope.APPLICATION);
+				}
 				const onboardingContainer = h('div.void-onboarding-container').root;
 				workbench.appendChild(onboardingContainer);
 				const result = mountVoidOnboarding(onboardingContainer, accessor);

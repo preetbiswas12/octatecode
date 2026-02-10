@@ -49,6 +49,11 @@ import './helperServices/consistentItemService.js'
 // register selection helper
 import './voidSelectionHelperWidget.js'
 
+// Collaboration
+import './collaborationService.js'
+import './fileSyncService.js'
+import './cursorTrackingService.js'
+
 // register tooltip service
 import './tooltipService.js'
 
@@ -64,10 +69,16 @@ import './fileService.js'
 // register source control management
 import './voidSCMService.js'
 
+// register persistent memory initialization
+import './persistentMemoryInitializationContribution.js'
+
 // ---------- common (unclear if these actually need to be imported, because they're already imported wherever they're used) ----------
 
 // llmMessage
 import '../common/sendLLMMessageService.js'
+
+// persistent memory
+import '../common/persistentMemoryService.js'
 
 // voidSettings
 import '../common/voidSettingsService.js'

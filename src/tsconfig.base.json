@@ -16,6 +16,7 @@
 		"useUnknownInCatchVariables": false,
 		"forceConsistentCasingInFileNames": true,
 		"target": "es2022",
+		"jsx": "react-jsx",
 		"useDefineForClassFields": false,
 		"lib": [
 			"ES2022",

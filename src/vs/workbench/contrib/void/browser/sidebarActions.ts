@@ -16,7 +16,9 @@ import { ICodeEditorService } from '../../../../editor/browser/services/codeEdit
 import { IRange } from '../../../../editor/common/core/range.js';
 import { VOID_VIEW_CONTAINER_ID, VOID_VIEW_ID } from './sidebarPane.js';
 import { IMetricsService } from '../common/metricsService.js';
+import { IVoidSettingsService } from '../common/voidSettingsService.js';
 import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { VOID_TOGGLE_SETTINGS_ACTION_ID } from './voidSettingsPane.js';
 import { VOID_CTRL_L_ACTION_ID } from './actionIDs.js';
 import { localize2 } from '../../../../nls.js';
@@ -64,7 +66,7 @@ export const roundRangeToLines = (range: IRange | null | undefined, options: { e
 const VOID_OPEN_SIDEBAR_ACTION_ID = 'void.sidebar.open'
 registerAction2(class extends Action2 {
 	constructor() {
-		super({ id: VOID_OPEN_SIDEBAR_ACTION_ID, title: localize2('voidOpenSidebar', 'Void: Open Sidebar'), f1: true });
+		super({ id: VOID_OPEN_SIDEBAR_ACTION_ID, title: localize2('voidOpenSidebar', 'Octatecode: Open Sidebar'), f1: true });
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
 		const viewsService = accessor.get(IViewsService)
@@ -81,7 +83,7 @@ registerAction2(class extends Action2 {
 		super({
 			id: VOID_CTRL_L_ACTION_ID,
 			f1: true,
-			title: localize2('voidCmdL', 'Void: Add Selection to Chat'),
+			title: localize2('voidCmdL', 'Octatecode: Add Selection to Chat'),
 			keybinding: {
 				primary: KeyMod.CtrlCmd | KeyCode.KeyL,
 				weight: KeybindingWeight.VoidExtension
@@ -254,14 +256,21 @@ registerAction2(class extends Action2 {
 // Reset onboarding command
 registerAction2(class extends Action2 {
 	constructor() {
-		super({ id: 'void.resetOnboarding', title: localize2('voidResetOnboarding', 'Void: Reset Onboarding'), f1: true });
+		super({ id: 'void.resetOnboarding', title: localize2('voidResetOnboarding', 'Octatecode: Reset Onboarding'), f1: true });
 	}
 	async run(accessor: ServicesAccessor): Promise<void> {
-		// Get the actual settings service from the accessor
-		const settingsService = (accessor as any).get('IVoidSettingsService');
-		if (settingsService && settingsService.setGlobalSetting) {
-			await settingsService.setGlobalSetting('isOnboardingComplete', false);
-		}
+		const voidSettingsService = accessor.get(IVoidSettingsService);
+		const storageService = accessor.get(IStorageService);
+		const commandService = accessor.get(ICommandService);
+
+		// Reset the onboarding complete flag
+		await voidSettingsService.setGlobalSetting('isOnboardingComplete', false);
+
+		// Set a flag to force show onboarding on next load
+		storageService.store('void-force-show-onboarding', 'true', StorageScope.APPLICATION, StorageTarget.MACHINE);
+
+		// Reload the window to show onboarding again
+		await commandService.executeCommand('workbench.action.reloadWindow');
 	}
 })
 

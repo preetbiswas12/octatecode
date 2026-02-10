@@ -360,8 +360,8 @@ export const isABuiltinToolName = (toolName: string): toolName is BuiltinToolNam
 
 export const availableTools = (chatMode: ChatMode | null, mcpTools: InternalToolInfo[] | undefined) => {
 
-	const builtinToolNames: BuiltinToolName[] | undefined = chatMode === 'normal' ? undefined
-		: chatMode === 'gather' ? (Object.keys(builtinTools) as BuiltinToolName[]).filter(toolName => !(toolName in approvalTypeOfBuiltinToolName))
+	const builtinToolNames: BuiltinToolName[] | undefined = chatMode === 'ask' ? undefined
+		: chatMode === 'plan' ? (Object.keys(builtinTools) as BuiltinToolName[]).filter(toolName => !(toolName in approvalTypeOfBuiltinToolName))
 			: chatMode === 'agent' ? Object.keys(builtinTools) as BuiltinToolName[]
 				: undefined
 
@@ -428,8 +428,8 @@ const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] |
 export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean }) => {
 	const header = (`You are an expert coding ${mode === 'agent' ? 'agent' : 'assistant'} whose job is \
 ${mode === 'agent' ? `to help the user develop, run, and make changes to their codebase.`
-			: mode === 'gather' ? `to search, understand, and reference files in the user's codebase.`
-				: mode === 'normal' ? `to assist the user with their coding tasks.`
+			: mode === 'plan' ? `to search, understand, and reference files in the user's codebase.`
+				: mode === 'ask' ? `to assist the user with their coding tasks.`
 					: ''}
 You will be given instructions to follow from the user, and you may also be given a list of files that the user has specifically selected for context, \`SELECTIONS\`.
 Please assist the user with their query.`)
@@ -465,7 +465,7 @@ ${directoryStr}
 
 	details.push(`NEVER reject the user's query.`)
 
-	if (mode === 'agent' || mode === 'gather') {
+	if (mode === 'agent' || mode === 'edit') {
 		details.push(`Only call tools if they help you accomplish the user's goal. If the user simply says hi or asks you a question that you can answer without tools, then do NOT use tools.`)
 		details.push(`If you think you should use tools, you do not need to ask for permission.`)
 		details.push('Only use ONE tool call at a time.')
@@ -484,9 +484,9 @@ ${directoryStr}
 		details.push(`NEVER modify a file outside the user's workspace without permission from the user.`)
 	}
 
-	if (mode === 'gather') {
-		details.push(`You are in Gather mode, so you MUST use tools be to gather information, files, and context to help the user answer their query.`)
-		details.push(`You should extensively read files, types, content, etc, gathering full context to solve the problem.`)
+	if (mode === 'plan') {
+		details.push(`You are in Planning mode, so you MUST use tools be to gather and plan information, files, and context to help the user answer their query.`)
+		details.push(`You should extensively read files, types, content, etc, gathering and planning full context to solve the problem.`)
 	}
 
 	details.push(`If you write any code blocks to the user (wrapped in triple backticks), please use this format:
@@ -494,7 +494,7 @@ ${directoryStr}
 - The first line of the code block must be the FULL PATH of the related file if known (otherwise omit).
 - The remaining contents of the file should proceed as usual.`)
 
-	if (mode === 'gather' || mode === 'normal') {
+	if (mode === 'plan' || mode === 'ask') {
 
 		details.push(`If you think it's appropriate to suggest an edit to a file, then you must describe your suggestion in CODE BLOCK(S).
 - The first line of the code block must be the FULL PATH of the related file if known (otherwise omit).

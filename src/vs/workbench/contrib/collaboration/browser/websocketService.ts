@@ -36,8 +36,23 @@ export interface UserPresence {
  */
 class WebSocketService {
 	private ws: WebSocket | null = null;
-	private wsUrl: string = 'wss://octate.qzz.io/collaborate';
+	private wsUrl: string;
 	private reconnectAttempts: number = 0;
+
+	constructor() {
+		this.wsUrl = this.getWebSocketUrl();
+	}
+
+	private getWebSocketUrl(): string {
+		// Get from window config (set during app initialization)
+		const envUrl = (window as any).__COLLABORATION_WS_URL__;
+		if (envUrl) return envUrl;
+
+		// Fallback: construct from current location
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		const host = (window as any).__COLLABORATION_BACKEND_HOST__ || window.location.host;
+		return `${protocol}//${host}`;
+	}
 	private maxReconnectAttempts: number = 5;
 	private reconnectDelay: number = 3000;
 	private heartbeatInterval: NodeJS.Timeout | null = null;

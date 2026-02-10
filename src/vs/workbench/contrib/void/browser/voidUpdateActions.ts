@@ -36,8 +36,9 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 				tooltip: '',
 				class: undefined,
 				run: () => {
-					const { window } = dom.getActiveWindow()
-					window.open('https://octate.qzz.io')
+					const appUrl = (window as any).__APP_URL__ || 'https://octatecode.app';
+					const { window: activeWindow } = dom.getActiveWindow()
+					activeWindow.open(appUrl)
 				}
 			})
 		}
@@ -89,8 +90,9 @@ const notifyUpdate = (res: VoidCheckUpdateRespose & { message: string }, notifSe
 			tooltip: '',
 			class: undefined,
 			run: () => {
-				const { window } = dom.getActiveWindow()
-				window.open('https://octate.qzz.io')
+				const appUrl = (window as any).__APP_URL__ || 'https://octatecode.app';
+				const { window: activeWindow } = dom.getActiveWindow()
+				activeWindow.open(appUrl)
 			}
 		})
 

@@ -39,6 +39,7 @@ import { IDirectoryStrService } from '../common/directoryStrService.js';
 import { IFileService } from '../../../../platform/files/common/files.js';
 import { IMCPService } from '../common/mcpService.js';
 import { RawMCPToolCall } from '../common/mcpServiceTypes.js';
+import { IPersistentMemoryService, PersistedChatMessage } from '../common/persistentMemoryServiceTypes.js';
 
 
 // related to retrying when LLM message has error
@@ -327,6 +328,7 @@ class ChatThreadService extends Disposable implements IChatThreadService {
 		@IDirectoryStrService private readonly _directoryStringService: IDirectoryStrService,
 		@IFileService private readonly _fileService: IFileService,
 		@IMCPService private readonly _mcpService: IMCPService,
+		@IPersistentMemoryService private readonly _persistentMemoryService: IPersistentMemoryService,
 	) {
 		super()
 		this.state = { allThreads: {}, currentThreadId: null as unknown as string } // default state
@@ -1695,6 +1697,45 @@ We only need to do it for files that were edited since `from`, ie files between 
 		}
 		this._storeAllThreads(newThreads)
 		this._setState({ allThreads: newThreads }) // the current thread just changed (it had a message added to it)
+
+		// PERSISTENCE: Save message to disk (async, fire-and-forget)
+		this._persistMessageToDisk(threadId, message).catch(err => {
+			console.error('Error persisting message:', err);
+		});
+	}
+
+	/**
+	 * Persist a message to disk via the persistent memory service.
+	 * Saves to .void-research/ folder with path-aware session management.
+	 */
+	private async _persistMessageToDisk(threadId: string, message: ChatMessage): Promise<void> {
+		try {
+			const workspace = this._workspaceContextService.getWorkspace();
+			const folder = workspace.folders[0];
+			if (!folder) return; // No folder open, can't persist
+
+			const folderPath = folder.uri.fsPath;
+
+			// Convert ChatMessage to PersistedChatMessage
+			const persistedMessage: PersistedChatMessage = {
+				...message,
+				_id: generateUuid(),
+				_timestamp: Date.now(),
+				_isComplete: message.role === 'assistant',
+			} as PersistedChatMessage;
+
+			// Save to persistent storage
+			const result = await this._persistentMemoryService.saveMessage(
+				threadId,
+				persistedMessage,
+				folderPath,
+				message.role === 'assistant', // updatePlanningFiles for assistant messages
+			);
+
+			console.log(`✅ Message ${message.role} persisted: ${result.messageId}`);
+		} catch (error) {
+			console.error('Error persisting message to disk:', error);
+		}
 	}
 
 	// sets the currently selected message (must be undefined if no message is selected)
@@ -1881,4 +1922,4 @@ We only need to do it for files that were edited since `from`, ie files between 
 
 }
 
-registerSingleton(IChatThreadService, ChatThreadService, InstantiationType.Eager);
+registerSingleton(IChatThreadService, ChatThreadService as any, InstantiationType.Eager);

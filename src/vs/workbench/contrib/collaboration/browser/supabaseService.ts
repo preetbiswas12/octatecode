@@ -4,8 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 /**
- * Service for interacting with Supabase backend for collaboration
- * Handles room creation, joining, and session management
+ * Pure P2P Service for managing collaboration rooms and operations
+ * No database dependencies - only P2P backend for room metadata and signaling
+ * Operations sync directly between peers via WebRTC
  */
 export interface CollaborationRoom {
 	id: number;
@@ -29,34 +30,24 @@ export interface CollaborationSession {
 }
 
 class SupabaseService {
-	// Backend API endpoint - should be running on localhost:3000 or production URL
+	// P2P Backend API endpoint (REQUIRED - no fallback to database)
 	private backendUrl: string;
-	// Supabase credentials from environment or .env file
-	private supabaseUrl: string;
-	private supabaseKey: string;
-	private baseUrl: string;
-	private headers: Record<string, string>;
-	private configFetched: boolean = false;
 
 	constructor() {
-		// Get backend URL from environment variable or use default
-		this.backendUrl = this.getEnvVariable('COLLABORATION_BACKEND_URL') || 'https://octate.qzz.io';
+		// Get P2P backend URL from window config (REQUIRED)
+		const envBackendUrl = (window as any).__COLLABORATION_BACKEND_URL__;
+		if (!envBackendUrl && !window.location.hostname.includes('localhost')) {
+			console.warn('⚠️ P2P Backend URL not configured. Set window.__COLLABORATION_BACKEND_URL__');
+		}
 
-		// Get Supabase credentials from environment variables (or defaults)
-		// These will be overridden by backend config when initialize() is called
-		this.supabaseUrl = this.getEnvVariable('SUPABASE_URL') || 'https://fcsmfkwsmlinzxvqlvml.supabase.co';
-		this.supabaseKey = this.getEnvVariable('SUPABASE_ANON_KEY') || 'sb_publishable_f5Aubji22o_P4OAhyLUWjQ_8JwAza51';
-
-		// Construct base URL
-		this.baseUrl = `${this.supabaseUrl}/rest/v1`;
-
-		// Setup headers with Supabase anon key (for public access)
-		this.headers = {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${this.supabaseKey}`,
-			'apikey': this.supabaseKey,
-			'Prefer': 'return=representation'
-		};
+		if (envBackendUrl) {
+			this.backendUrl = envBackendUrl;
+		} else {
+			// Fallback: construct from current location
+			const protocol = window.location.protocol;
+			const host = (window as any).__COLLABORATION_BACKEND_HOST__ || window.location.host;
+			this.backendUrl = `${protocol}//${host}`;
+		}
 	}
 
 	/**
@@ -64,69 +55,25 @@ class SupabaseService {
 	 * In browser context, this won't have access to process.env
 	 * Instead, we cache config from backend /api/config endpoint
 	 */
-	private configCache: Record<string, string> = {};
-
-	private getEnvVariable(name: string): string {
-		// First check if config has been fetched and cached
-		if (this.configCache[name]) {
-			return this.configCache[name];
-		}
-		// In browser context, we can't access process.env directly
-		// Config will be populated when initialize() is called
-		return '';
-	}
 
 	/**
-	 * Cache config from backend
-	 */
-	private setCachedConfig(key: string, value: string): void {
-		this.configCache[key] = value;
-	}
-
-	/**
-	 * Initialize service with config from backend
-	 * This should be called on startup to get real credentials
+	 * Initialize P2P service
+	 * Validates P2P backend connectivity
 	 */
 	async initialize(): Promise<void> {
-		if (this.configFetched) {
-			console.log('✓ Collaboration service already initialized');
-			return;
-		}
-
 		try {
-			// Fetch configuration from backend API
-			const response = await fetch(`${this.backendUrl}/api/config`, {
+			// Test P2P backend connectivity
+			const response = await fetch(`${this.backendUrl}/health`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
 
 			if (response.ok) {
-				const config = await response.json();
-				console.log('✓ Backend config received:', {
-					hasSupabaseUrl: !!config.supabaseUrl,
-					hasSupabaseAnonKey: !!config.supabaseAnonKey,
-					hasWsEndpoint: !!config.wsEndpoint
-				});
-
-				// Cache the config values
-				if (config.supabaseUrl) {
-					this.setCachedConfig('SUPABASE_URL', config.supabaseUrl);
-					this.supabaseUrl = config.supabaseUrl;
-					this.baseUrl = `${this.supabaseUrl}/rest/v1`;
-				}
-				if (config.supabaseAnonKey) {
-					this.setCachedConfig('SUPABASE_ANON_KEY', config.supabaseAnonKey);
-					this.supabaseKey = config.supabaseAnonKey;
-					// Update headers with new credentials
-					this.headers['Authorization'] = `Bearer ${this.supabaseKey}`;
-					this.headers['apikey'] = this.supabaseKey;
-				}
-
-				this.configFetched = true;
-				console.log('✓ Collaboration service initialized with backend config');
-				console.log('  - Supabase URL:', this.supabaseUrl);
-				console.log('  - Backend:', this.backendUrl);
-				console.log('  - Credentials cached: ✓');
+				const health = await response.json();
+				console.log('✓ P2P Backend connected');
+				console.log('  - Backend URL:', this.backendUrl);
+				console.log('  - Status:', health.status);
+				console.log('  - Memory:', health.memory);
 			} else {
 				console.warn('Failed to fetch config from backend:', response.status);
 			}
@@ -278,50 +225,27 @@ class SupabaseService {
 
 	/**
 	 * Get room by ID
+	 * Pure P2P: Uses backend API only, no database fallback
 	 */
 	async getRoom(roomId: string): Promise<CollaborationRoom | null> {
 		try {
-			// Try backend API first using correct endpoint: GET /api/rooms/:roomId
-			try {
-				const backendResponse = await fetch(`${this.backendUrl}/api/rooms/${roomId}`, {
-					method: 'GET',
-					headers: { 'Content-Type': 'application/json' }
-				});
-				if (backendResponse.ok) {
-					const result = await backendResponse.json();
-					return this.parseRoom(result.data || result);
-				} else if (backendResponse.status === 404) {
-					console.warn('Room not found on backend');
-				} else {
-					console.warn('Backend API returned error:', backendResponse.status);
-				}
-			} catch (backendError) {
-				console.warn('Backend unavailable, will try direct Supabase:', backendError);
-			}
-
-			// Fallback to direct Supabase
-			if (!this.supabaseKey) {
-				return null;
-			}
-
-			const response = await fetch(
-				`${this.baseUrl}/collaboration_rooms?room_id=eq.${roomId}`,
-				{
-					method: 'GET',
-					headers: this.headers
-				}
-			);
+			// P2P backend API: GET /api/rooms/:roomId
+			const response = await fetch(`${this.backendUrl}/api/rooms/${roomId}`, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' }
+			});
 
 			if (!response.ok) {
+				if (response.status === 404) {
+					console.warn('Room not found:', roomId);
+				} else {
+					console.warn('Backend error:', response.status);
+				}
 				return null;
 			}
 
-			const rooms = await response.json();
-			if (!rooms || rooms.length === 0) {
-				return null;
-			}
-
-			return this.parseRoom(rooms[0]);
+			const result = await response.json();
+			return this.parseRoom(result.data || result);
 		} catch (error) {
 			console.error('Error getting room:', error);
 			return null;
@@ -330,32 +254,35 @@ class SupabaseService {
 
 	/**
 	 * Get all active participants in a room
+	 * Pure P2P: Uses backend /peers endpoint
 	 */
 	async getActiveSessions(roomId: string): Promise<CollaborationSession[]> {
 		try {
+			// P2P backend API: GET /api/rooms/:roomId/peers
 			const response = await fetch(
-				`${this.baseUrl}/room_participants?room_id=eq.${roomId}&active=eq.true`,
+				`${this.backendUrl}/api/rooms/${roomId}/peers`,
 				{
 					method: 'GET',
-					headers: this.headers
+					headers: { 'Content-Type': 'application/json' }
 				}
 			);
 
 			if (!response.ok) {
+				console.warn('Failed to get peers:', response.status);
 				return [];
 			}
 
-			const participants = await response.json();
-			return participants.map((p: any) => ({
-				id: p.id,
-				roomId: p.room_id,
-				userId: p.user_id,
-				userName: p.user_name,
-				joinedAt: p.joined_at,
-				active: p.active
+			const peers = await response.json();
+			return (peers || []).map((p: any) => ({
+				id: p.id || 0,
+				roomId: roomId,
+				userId: p.user_id || p.userId,
+				userName: p.user_name || p.userName,
+				joinedAt: p.joined_at || new Date().toISOString(),
+				active: true
 			}));
 		} catch (error) {
-			console.error('Error getting sessions:', error);
+			console.error('Error getting active sessions:', error);
 			return [];
 		}
 	}
@@ -393,18 +320,21 @@ class SupabaseService {
 
 	/**
 	 * Get document history for a room
+	 * Pure P2P: Uses backend /operations endpoint
 	 */
 	async getDocumentHistory(roomId: string): Promise<any[]> {
 		try {
+			// P2P backend API: GET /api/rooms/:roomId/operations
 			const response = await fetch(
-				`${this.baseUrl}/operations?room_id=eq.${roomId}&order=version.asc,created_at.asc`,
+				`${this.backendUrl}/api/rooms/${roomId}/operations`,
 				{
 					method: 'GET',
-					headers: this.headers
+					headers: { 'Content-Type': 'application/json' }
 				}
 			);
 
 			if (!response.ok) {
+				console.warn('Failed to fetch operation history:', response.status);
 				return [];
 			}
 

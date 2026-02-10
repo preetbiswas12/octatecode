@@ -32,7 +32,7 @@ type SetModelSelectionOfFeatureFn = <K extends FeatureName>(
 	newVal: ModelSelectionOfFeature[K],
 ) => Promise<void>;
 
-type SetGlobalSettingFn = <T extends GlobalSettingName>(settingName: T, newVal: GlobalSettings[T]) => void;
+type SetGlobalSettingFn = <T extends GlobalSettingName>(settingName: T, newVal: GlobalSettings[T]) => Promise<void>;
 
 type SetOptionsOfModelSelection = (featureName: FeatureName, providerName: ProviderName, modelName: string, newVal: Partial<ModelSelectionOptions>) => void
 
@@ -289,7 +289,7 @@ class VoidSettingsService extends Disposable implements IVoidSettingsService {
 			}
 			// add disableSystemMessage feature
 			if (readS.globalSettings.disableSystemMessage === undefined) readS.globalSettings.disableSystemMessage = false;
-			
+
 			// add autoAcceptLLMChanges feature
 			if (readS.globalSettings.autoAcceptLLMChanges === undefined) readS.globalSettings.autoAcceptLLMChanges = false;
 		}

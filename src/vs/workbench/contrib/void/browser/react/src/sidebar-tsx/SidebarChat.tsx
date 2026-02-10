@@ -18,7 +18,8 @@ import { ModelDropdown, } from '../void-settings-tsx/ModelDropdown.js';
 import { PastThreadsList } from './SidebarThreadSelector.js';
 import { VOID_CTRL_L_ACTION_ID } from '../../../actionIDs.js';
 import { VOID_OPEN_SETTINGS_ACTION_ID } from '../../../voidSettingsPane.js';
-import { ChatMode, displayInfoOfProviderName, FeatureName, isFeatureNameDisabled } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js';
+import { displayInfoOfProviderName, FeatureName, isFeatureNameDisabled, ChatMode } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js';
+import { chatModeDescriptions, chatModes } from '../chat-ui/ChatMode.js';
 import { ICommandService } from '../../../../../../../platform/commands/common/commands.js';
 import { WarningBox } from '../void-settings-tsx/WarningBox.js';
 import { getModelCapabilities, getIsReasoningEnabledState } from '../../../../common/modelCapabilities.js';
@@ -247,26 +248,16 @@ const ReasoningOptionSlider = ({ featureName }: { featureName: FeatureName }) =>
 
 
 
-const nameOfChatMode = {
-	'normal': 'Chat',
-	'gather': 'Gather',
-	'agent': 'Agent',
-}
-
-const detailOfChatMode = {
-	'normal': 'Normal chat',
-	'gather': 'Reads files, but can\'t edit',
-	'agent': 'Edits files and uses tools',
-}
-
-
 const ChatModeDropdown = ({ className }: { className: string }) => {
 	const accessor = useAccessor()
 
 	const voidSettingsService = accessor.get('IVoidSettingsService')
 	const settingsState = useSettingsState()
 
-	const options: ChatMode[] = useMemo(() => ['normal', 'gather', 'agent'], [])
+	// Get current chat mode - default to 'ask' if not set
+	const currentMode = settingsState.globalSettings.chatMode as ChatMode || 'ask'
+
+	const options: ChatMode[] = useMemo(() => chatModes as ChatMode[], [])
 
 	const onChangeOption = useCallback((newVal: ChatMode) => {
 		voidSettingsService.setGlobalSetting('chatMode', newVal)
@@ -275,11 +266,11 @@ const ChatModeDropdown = ({ className }: { className: string }) => {
 	return <VoidCustomDropdownBox
 		className={className}
 		options={options}
-		selectedOption={settingsState.globalSettings.chatMode}
+		selectedOption={currentMode}
 		onChangeOption={onChangeOption}
-		getOptionDisplayName={(val) => nameOfChatMode[val]}
-		getOptionDropdownName={(val) => nameOfChatMode[val]}
-		getOptionDropdownDetail={(val) => detailOfChatMode[val]}
+		getOptionDisplayName={(val) => chatModeDescriptions[val].label}
+		getOptionDropdownName={(val) => chatModeDescriptions[val].label}
+		getOptionDropdownDetail={(val) => chatModeDescriptions[val].description}
 		getOptionsEqual={(a, b) => a === b}
 	/>
 
@@ -306,7 +297,6 @@ interface VoidChatAreaProps {
 	showSelections?: boolean;
 	showProspectiveSelections?: boolean;
 	loadingIcon?: React.ReactNode;
-
 	selections?: StagingSelectionItem[]
 	setSelections?: (s: StagingSelectionItem[]) => void
 	// selections?: any[];

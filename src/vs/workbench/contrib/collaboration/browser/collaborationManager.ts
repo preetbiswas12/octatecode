@@ -102,6 +102,7 @@ export class CollaborationManager {
 				host: this._userId,
 				owner: this._userId,
 				createdAt: Date.now(),
+				peerId: this._userId,
 				version: 0,
 				isActive: true
 			};
@@ -138,7 +139,8 @@ export class CollaborationManager {
 			this._userName = userName;
 
 			// First, fetch room data from API to pass to WebSocket server
-			const roomData = await fetch(`https://octate.qzz.io/api/rooms/${sessionId}`)
+			const backendUrl = (window as any).__COLLABORATION_BACKEND_URL__ || 'http://localhost:3000';
+			const roomData = await fetch(`${backendUrl}/api/rooms/${sessionId}`)
 				.then(r => r.json())
 				.catch(err => {
 					console.warn('Failed to fetch room data:', err);
@@ -170,6 +172,7 @@ export class CollaborationManager {
 				host: '',
 				owner: '',
 				createdAt: 0,
+				peerId: this._userId,
 				version: syncData.version,
 				isActive: true
 			};

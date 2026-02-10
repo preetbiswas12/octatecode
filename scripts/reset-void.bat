@@ -1,77 +1,123 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-title Reset OctateCode IDE
-
-echo Resetting OctateCode IDE to initial state...
-echo.
-
-:: Delete compiled output
-echo Clearing compiled output...
-if exist "out" (
-    rmdir /s /q "out"
-    echo Deleted out directory
-)
-
-if exist ".build" (
-    rmdir /s /q ".build"
-    echo Deleted .build directory
-)
-
-if exist "build\.build" (
-    rmdir /s /q "build\.build"
-    echo Deleted build\.build directory
-)
-
-:: Delete user data and settings
-echo Clearing user data...
-if exist "%USERPROFILE%\.void-editor-dev" (
-    rmdir /s /q "%USERPROFILE%\.void-editor-dev"
-    echo Deleted .void-editor-dev
-)
-
-if exist "%USERPROFILE%\.vscode-oss-dev" (
-    rmdir /s /q "%USERPROFILE%\.vscode-oss-dev"
-    echo Deleted .vscode-oss-dev
-)
-
-:: Delete AppData
-if exist "%APPDATA%\Code - OSS" (
-    rmdir /s /q "%APPDATA%\Code - OSS"
-    echo Deleted AppData\Code - OSS
-)
-
-if exist "%APPDATA%\Void" (
-    rmdir /s /q "%APPDATA%\Void"
-    echo Deleted AppData\Void
-)
-
-:: Delete cache
-if exist "%USERPROFILE%\AppData\Local\Temp\vscode-tests-*" (
-    for /d %%D in ("%USERPROFILE%\AppData\Local\Temp\vscode-tests-*") do (
-        rmdir /s /q "%%D" 2>nul
-    )
-    echo Deleted vscode temp files
-)
+title Reset Octatecode - Data Cleanup
 
 echo.
-echo ✓ Reset complete!
+echo ============================================
+echo  Octatecode Data Reset - Clean All Folders
+echo ============================================
 echo.
-echo OctateCode IDE has been reset to initial state.
+
+:: Delete main code-oss-dev folder (Roaming) - contains logs, settings, backups
+echo [1/5] Clearing code-oss-dev data (Roaming)...
+
+if exist "%APPDATA%\code-oss-dev" (
+    rmdir /s /q "%APPDATA%\code-oss-dev" 2>nul
+    echo     OK: Deleted code-oss-dev
+) else (
+    echo     - code-oss-dev (Roaming) not found
+)
+
+:: Delete Octatecode branded folders (older naming)
 echo.
-echo IMPORTANT - Do the following to see onboarding again:
+echo [2/5] Clearing Octatecode branded folders...
+
+if exist "%APPDATA%\.octatecode-editor" (
+    rmdir /s /q "%APPDATA%\.octatecode-editor" 2>nul
+    echo     OK: Deleted .octatecode-editor
+) else (
+    echo     - .octatecode-editor not found
+)
+
+if exist "%APPDATA%\.octatecode-editor-dev" (
+    rmdir /s /q "%APPDATA%\.octatecode-editor-dev" 2>nul
+    echo     OK: Deleted .octatecode-editor-dev
+) else (
+    echo     - .octatecode-editor-dev not found
+)
+
+if exist "%APPDATA%\Octatecode" (
+    rmdir /s /q "%APPDATA%\Octatecode" 2>nul
+    echo     OK: Deleted Octatecode (Roaming)
+) else (
+    echo     - Octatecode (Roaming) not found
+)
+
+if exist "%APPDATA%\Code - OSS Dev" (
+    rmdir /s /q "%APPDATA%\Code - OSS Dev" 2>nul
+    echo     OK: Deleted Code - OSS Dev (Roaming)
+) else (
+    echo     - Code - OSS Dev (Roaming) not found
+)
+
+:: Delete LocalAppData folders (cache)
 echo.
-echo 1. Edit this file: src\vs\workbench\contrib\void\browser\react\src\void-onboarding\VoidOnboarding.tsx
-echo    Find line: const OVERRIDE_VALUE = false
-echo    (Currently true - after onboarding, change it back to false)
+echo [3/5] Clearing cache folders (LocalAppData)...
+
+if exist "%LOCALAPPDATA%\code-oss-dev" (
+    rmdir /s /q "%LOCALAPPDATA%\code-oss-dev" 2>nul
+    echo     OK: Deleted code-oss-dev (Local)
+) else (
+    echo     - code-oss-dev (Local) not found
+)
+
+if exist "%LOCALAPPDATA%\Octatecode" (
+    rmdir /s /q "%LOCALAPPDATA%\Octatecode" 2>nul
+    echo     OK: Deleted Octatecode (Local)
+) else (
+    echo     - Octatecode (Local) not found
+)
+
+if exist "%LOCALAPPDATA%\Code - OSS Dev" (
+    rmdir /s /q "%LOCALAPPDATA%\Code - OSS Dev" 2>nul
+    echo     OK: Deleted Code - OSS Dev (Local)
+) else (
+    echo     - Code - OSS Dev (Local) not found
+)
+
+:: Delete temp folders
 echo.
-echo 2. Run: npm run compile
-echo 3. Run: ./scripts/code.bat
+echo [4/5] Clearing temp and crash folders...
+
+for /d %%D in ("%TEMP%\octatecode*") do rmdir /s /q "%%D" 2>nul
+for /d %%D in ("%TEMP%\code*") do rmdir /s /q "%%D" 2>nul
+
+echo     OK: Cleaned temp files
+
+:: Delete Cache and CachedData folders
 echo.
-echo Next time you start OctateCode with OVERRIDE_VALUE = true, you will see:
-echo   - Welcome screen with "Get Started" button
-echo   - API key setup page
-echo   - VS Code extensions transfer page
+echo [5/5] Clearing browser cache and stored data...
+
+if exist "%LOCALAPPDATA%\code-oss-dev\Cache" (
+    rmdir /s /q "%LOCALAPPDATA%\code-oss-dev\Cache" 2>nul
+    echo     OK: Deleted Cache
+)
+
+if exist "%LOCALAPPDATA%\code-oss-dev\CachedData" (
+    rmdir /s /q "%LOCALAPPDATA%\code-oss-dev\CachedData" 2>nul
+    echo     OK: Deleted CachedData
+)
+
+if exist "%LOCALAPPDATA%\code-oss-dev\Code Cache" (
+    rmdir /s /q "%LOCALAPPDATA%\code-oss-dev\Code Cache" 2>nul
+    echo     OK: Deleted Code Cache
+)
+
+echo.
+echo ============================================
+echo  Reset Complete - Clean Slate Achieved
+echo ============================================
+echo.
+echo Onboarding will show on next launch because:
+echo   - logs folder is deleted
+echo   - User settings are deleted
+echo.
+echo Next steps:
+echo   1. npm run watch-clientd (Terminal 1)
+echo   2. npm run watchreactd (Terminal 2)
+echo   3. npm run watch-extensionsd (Terminal 3)
+echo   4. .\scripts\code.bat (Terminal 4)
 echo.
 
 endlocal

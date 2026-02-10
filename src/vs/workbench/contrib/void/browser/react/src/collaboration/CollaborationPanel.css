@@ -1,0 +1,399 @@
+/*
+ * CollaborationPanel Styles
+ */
+
+.collaboration-panel {
+	position: relative;
+	display: inline-block;
+}
+
+.collaboration-toggle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	margin: 4px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	background-color: transparent;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 0;
+}
+
+.collaboration-toggle:hover {
+	background-color: var(--vscode-button-hoverBackground);
+}
+
+.collaboration-toggle:active {
+	background-color: var(--vscode-button-secondaryBackground);
+}
+
+.collaboration-indicator {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-color: #4ECDC4;
+	color: white;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.collaboration-dropdown {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 8px;
+	min-width: 320px;
+	background-color: var(--vscode-sideBar-background);
+	border: 1px solid var(--vscode-sideBar-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	z-index: 1000;
+	padding: 12px;
+	color: var(--vscode-foreground);
+}
+
+/* Mode Buttons */
+.collaboration-modes {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.mode-header {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	margin-bottom: 8px;
+}
+
+.mode-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.mode-button {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--vscode-button-border);
+	border-radius: 4px;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.mode-button:hover {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.mode-button.create {
+	border-color: #4ECDC4;
+	background: linear-gradient(135deg, #4ECDC4, #3db5ad);
+	color: white;
+}
+
+.mode-button.join {
+	border-color: #45B7D1;
+	background: linear-gradient(135deg, #45B7D1, #2d8fa3);
+	color: white;
+}
+
+/* Forms */
+.mode-form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 8px 0;
+}
+
+.mode-form input {
+	padding: 8px 10px;
+	border: 1px solid var(--vscode-input-border);
+	border-radius: 4px;
+	background-color: var(--vscode-input-background);
+	color: var(--vscode-input-foreground);
+	font-size: 12px;
+	transition: all 0.2s ease;
+}
+
+.mode-form input:focus {
+	outline: none;
+	border-color: #4ECDC4;
+	box-shadow: 0 0 4px rgba(78, 205, 196, 0.3);
+}
+
+.mode-form input:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.form-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+	flex: 1;
+	padding: 8px 12px;
+	border: none;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-primary {
+	background-color: #4ECDC4;
+	color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+	background-color: #3db5ad;
+	box-shadow: 0 2px 8px rgba(78, 205, 196, 0.4);
+}
+
+.btn-primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.btn-secondary {
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	border: 1px solid var(--vscode-button-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+	background-color: var(--vscode-button-secondaryHoverBackground);
+}
+
+.btn-secondary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Room Info */
+.room-info {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 8px 0;
+}
+
+.room-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.room-name {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--vscode-foreground);
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.btn-leave {
+	padding: 6px 8px;
+	border: 1px solid var(--vscode-button-border);
+	border-radius: 4px;
+	background-color: #FF6B6B;
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.btn-leave:hover:not(:disabled) {
+	background-color: #ff5252;
+	box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+}
+
+.btn-leave:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Room ID Section */
+.room-id-section {
+	padding: 8px;
+	background-color: var(--vscode-input-background);
+	border-radius: 4px;
+	border: 1px solid var(--vscode-input-border);
+}
+
+.room-id-section label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--vscode-descriptionForeground);
+	margin-bottom: 6px;
+	text-transform: uppercase;
+}
+
+.room-id-display {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background-color: var(--vscode-editor-background);
+	padding: 8px;
+	border-radius: 3px;
+	border: 1px solid var(--vscode-input-border);
+}
+
+.room-id-display code {
+	flex: 1;
+	font-size: 11px;
+	color: var(--vscode-foreground);
+	font-family: 'Monaco', 'Menlo', monospace;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.copy-btn {
+	padding: 4px 6px;
+	border: none;
+	background-color: transparent;
+	color: var(--vscode-foreground);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	opacity: 0.7;
+}
+
+.copy-btn:hover {
+	opacity: 1;
+	color: #4ECDC4;
+}
+
+/* Peers Section */
+.peers-section {
+	padding: 8px 0;
+}
+
+.peers-section label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--vscode-descriptionForeground);
+	margin-bottom: 8px;
+	text-transform: uppercase;
+}
+
+.peers-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.peer-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px;
+	background-color: var(--vscode-input-background);
+	border-radius: 4px;
+	border: 1px solid var(--vscode-input-border);
+	transition: all 0.2s ease;
+}
+
+.peer-item:hover {
+	border-color: #4ECDC4;
+	background-color: var(--vscode-editor-background);
+}
+
+.peer-item.host {
+	background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), transparent);
+	border-color: #FF6B6B;
+}
+
+.peer-indicator {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.peer-name {
+	flex: 1;
+	font-size: 12px;
+	color: var(--vscode-foreground);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.peer-badge {
+	padding: 2px 6px;
+	border-radius: 2px;
+	background-color: var(--vscode-button-secondaryBackground);
+	color: var(--vscode-button-secondaryForeground);
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	flex-shrink: 0;
+}
+
+.peer-badge.online {
+	background-color: transparent;
+	color: #4ECDC4;
+	padding: 0;
+	font-size: 12px;
+}
+
+/* Error Message */
+.error-message {
+	padding: 8px 10px;
+	border-radius: 4px;
+	background-color: rgba(255, 107, 107, 0.1);
+	color: #FF6B6B;
+	border: 1px solid #FF6B6B;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+/* Scrollbar styling */
+.peers-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.peers-list::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.peers-list::-webkit-scrollbar-thumb {
+	background: var(--vscode-scrollbar-shadow);
+	border-radius: 3px;
+}
+
+.peers-list::-webkit-scrollbar-thumb:hover {
+	background: #4ECDC4;
+}

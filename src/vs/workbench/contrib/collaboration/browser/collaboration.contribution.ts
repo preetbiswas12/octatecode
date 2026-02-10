@@ -117,7 +117,7 @@ registerAction2(class StartCollaborationAsHostAction extends Action2 {
 				workspacePath = firstFolder.uri.fsPath;
 			}
 
-			// Save to Supabase with the workspace path (covers all files)
+			// Create P2P room via backend signaling
 			const hostId = Math.random().toString(36).substring(2, 11);
 			const room = await supabaseService.createRoom(result.roomName, result.userName, hostId, workspacePath);
 
@@ -132,7 +132,9 @@ registerAction2(class StartCollaborationAsHostAction extends Action2 {
 
 			// Connect WebSocket for real-time sync
 			try {
-				const wsUrl = 'wss://octate.qzz.io/collaborate';
+				const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+				const host = (window as any).__COLLABORATION_BACKEND_HOST__ || window.location.host;
+				const wsUrl = `${protocol}//${host}`;
 				await websocketService.connect(wsUrl, room.roomId, hostId, result.userName);
 
 				// Send room creation data to WebSocket server with workspace path
@@ -205,7 +207,9 @@ registerAction2(class JoinCollaborationAsGuestAction extends Action2 {
 
 			// Connect WebSocket for real-time sync
 			try {
-				const wsUrl = 'wss://octate.qzz.io/collaborate';
+				const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+				const host = (window as any).__COLLABORATION_BACKEND_HOST__ || window.location.host;
+				const wsUrl = `${protocol}//${host}`;
 				await websocketService.connect(wsUrl, room.roomId, userId, result.userName);
 
 				// Send join-room with full room data to ensure backend creates room in memory
@@ -266,7 +270,7 @@ registerAction2(class EndCollaborationAction extends Action2 {
 				return;
 			}
 
-			// End in Supabase
+			// End P2P session via backend
 			await supabaseService.endSession(session.room.roomId);
 
 			// Disconnect WebSocket

@@ -45,6 +45,7 @@ export interface ICollaborationSession {
 	readonly host: string;
 	readonly createdAt: number;
 	readonly owner: string;
+	readonly peerId: string;  // P2P peer identifier (required)
 	version: number;
 	isActive: boolean;
 }

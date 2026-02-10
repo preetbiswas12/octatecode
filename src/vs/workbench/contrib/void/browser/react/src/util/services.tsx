@@ -3,8 +3,8 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { MCPUserState, RefreshableProviderName, SettingsOfProvider } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js'
+import  { useState, useEffect, useCallback } from 'react'
+import { RefreshableProviderName } from '../../../../../../../workbench/contrib/void/common/voidSettingsTypes.js'
 import { DisposableStore, IDisposable } from '../../../../../../../base/common/lifecycle.js'
 import { VoidSettingsState } from '../../../../../../../workbench/contrib/void/common/voidSettingsService.js'
 import { ColorScheme } from '../../../../../../../platform/theme/common/theme.js'
@@ -48,6 +48,10 @@ import { INativeHostService } from '../../../../../../../platform/native/common/
 import { IEditCodeService } from '../../../editCodeServiceInterface.js'
 import { IToolsService } from '../../../toolsService.js'
 import { IConvertToLLMMessageService } from '../../../convertToLLMMessageService.js'
+import { ICollaborationService } from '../../../collaborationService.js'
+import { IChatSyncService } from '../../../chatSyncService.js'
+import { ICursorTrackingService } from '../../../cursorTrackingService.js'
+import { IFileSyncService } from '../../../fileSyncService.js'
 import { ITerminalService } from '../../../../../terminal/browser/terminal.js'
 import { ISearchService } from '../../../../../../services/search/common/search.js'
 import { IExtensionManagementService } from '../../../../../../../platform/extensionManagement/common/extensionManagement.js'
@@ -103,7 +107,7 @@ export const _registerServices = (accessor: ServicesAccessor) => {
 		mcpService: accessor.get(IMCPService),
 	}
 
-	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, voidCommandBarService, modelService, mcpService } = stateServices
+	const { settingsStateService, chatThreadsStateService, refreshModelService, themeService, editCodeService, voidCommandBarService,  mcpService } = stateServices
 
 
 
@@ -218,6 +222,11 @@ const getReactAccessor = (accessor: ServicesAccessor) => {
 		ILanguageService: accessor.get(ILanguageService),
 		IVoidModelService: accessor.get(IVoidModelService),
 		IWorkspaceContextService: accessor.get(IWorkspaceContextService),
+
+		ICollaborationService: accessor.get(ICollaborationService),
+		IChatSyncService: accessor.get(IChatSyncService),
+		ICursorTrackingService: accessor.get(ICursorTrackingService),
+		IFileSyncService: accessor.get(IFileSyncService),
 
 		IVoidCommandBarService: accessor.get(IVoidCommandBarService),
 		INativeHostService: accessor.get(INativeHostService),

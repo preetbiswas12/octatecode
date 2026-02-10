@@ -557,8 +557,8 @@ const VoidOnboardingContent = () => {
 						// ignore errors updating configuration/storage
 					}
 				}}
-				ringSize={voidSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
-				>Enter OctateCode</PrimaryActionButton>
+			ringSize={voidSettingsState.globalSettings.isOnboardingComplete ? 'screen' : undefined}
+			>Enter Octatecode</PrimaryActionButton>
 		</div>
 	</div>
 
@@ -607,7 +607,7 @@ const VoidOnboardingContent = () => {
 		0: <OnboardingPageShell
 		 content={
 		 <div className='flex flex-col items-center gap-8'>
-		 <div className="text-5xl font-light text-center">Welcome to OctateCode</div>
+		 <div className="text-5xl font-light text-center">Welcome to Octatecode</div>
 
 		 {/* Slice of Void image (do not change image or path) */}
 		 <div className='max-w-md w-full h-[30vh] mx-auto flex items-center justify-center'>
