@@ -19,6 +19,8 @@ Complete documentation for OctateCode - an open-source AI-powered code editor wi
 ### Technical Documentation
 - **[Architecture Overview](./ARCHITECTURE.md)** - System design and components
 - **[API Reference](./API_REFERENCE.md)** - Service interfaces and types
+- **[Backend Overview](./BACKEND_OVERVIEW.md)** - P2P backend architecture, data models, session lifecycle
+- **[Frontend Integration](./FRONTEND_INTEGRATION.md)** - Integrating P2P backend with frontend applications
 - **[Performance Guide](./PERFORMANCE.md)** - Optimization and profiling
 - **[Security & Privacy](./SECURITY.md)** - Security implementation details
 
@@ -45,7 +47,9 @@ Complete documentation for OctateCode - an open-source AI-powered code editor wi
 
 **...collaborate with others**
 1. [Collaboration Guide](./COLLABORATION_QUICKSTART.md) - Set up P2P collaboration
-2. [Security Guide](./SECURITY.md) - Understand data sharing
+2. [Backend Overview](./BACKEND_OVERVIEW.md) - Understand backend architecture
+3. [Frontend Integration](./FRONTEND_INTEGRATION.md) - Integrate with backend
+4. [Security Guide](./SECURITY.md) - Understand data sharing
 
 **...configure AI providers**
 1. [Chat Features](./CHAT.md) - Provider setup
@@ -136,7 +140,9 @@ All documentation follows these principles:
 | [SECURITY.md](./SECURITY.md) | Security practices | All users, especially in teams |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Common issues | Users with problems |
 | [FAQ.md](./FAQ.md) | Frequently asked questions | All users |
-| [PERFORMANCE.md](./PERFORMANCE.md) | Performance optimization | Developers |
+| [PERFORMANCE.md](./PERFORMANCE.md) | Performance optimization |
+| [BACKEND_OVERVIEW.md](./BACKEND_OVERVIEW.md) | P2P backend architecture | Developers, DevOps |
+| [FRONTEND_INTEGRATION.md](./FRONTEND_INTEGRATION.md) | Backend integration guide | Frontend developers | Developers |
 | [MULTI_CURSOR.md](./MULTI_CURSOR.md) | Multi-cursor editing | Advanced users |
 | [CURSOR.md](./CURSOR.md) | Cursor management | Advanced users |
 

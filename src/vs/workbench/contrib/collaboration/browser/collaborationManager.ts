@@ -139,7 +139,7 @@ export class CollaborationManager {
 			this._userName = userName;
 
 			// First, fetch room data from API to pass to WebSocket server
-			const backendUrl = (window as any).__COLLABORATION_BACKEND_URL__ || 'http://localhost:3000';
+			const backendUrl = (window as any).__COLLABORATION_BACKEND_URL__ || 'https://octatecode-backend.onrender.com';
 			const roomData = await fetch(`${backendUrl}/api/rooms/${sessionId}`)
 				.then(r => r.json())
 				.catch(err => {

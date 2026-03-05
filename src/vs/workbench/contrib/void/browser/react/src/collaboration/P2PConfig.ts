@@ -32,9 +32,9 @@ export interface P2PConfig {
  */
 export const getP2PConfig = (): P2PConfig => {
 	const backendHttpUrl =
-		(window as any)['REACT_APP_P2P_HTTP'] || 'http://localhost:3000';
+		(window as any)['REACT_APP_P2P_HTTP'] || 'https://octatecode-backend.onrender.com';
 	const backendWsUrl =
-		(window as any)['REACT_APP_P2P_WS'] || 'ws://localhost:3001';
+		(window as any)['REACT_APP_P2P_WS'] || 'wss://octatecode-backend.onrender.com';
 
 	const roomId = (window as any)['REACT_APP_P2P_ROOM_ID'] || 'default-room';
 	const userId = (window as any)['REACT_APP_P2P_USER_ID'] || generateUserId();

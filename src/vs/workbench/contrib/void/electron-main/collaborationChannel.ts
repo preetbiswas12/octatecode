@@ -6,7 +6,7 @@
 import { IServerChannel } from '../../../../base/parts/ipc/common/ipc.js';
 import { Event } from '../../../../base/common/event.js';
 
-const P2P_BACKEND_URL = process.env.P2P_BACKEND_URL || 'http://localhost:3000/api';
+const P2P_BACKEND_URL = process.env.P2P_BACKEND_URL || 'https://octatecode-backend.onrender.com/api';
 
 export interface RoomResponse {
 	roomId: string;

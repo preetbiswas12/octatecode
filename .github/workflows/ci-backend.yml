@@ -1,0 +1,81 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'octatecode-backend/**'
+      - '.github/workflows/ci-backend.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'octatecode-backend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: octatecode-backend
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Type check
+      run: npm run type-check
+
+    - name: Build
+      run: npm run build
+
+    - name: Lint
+      run: npm run lint
+      continue-on-error: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: octatecode-backend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Deploy to Render
+      env:
+        RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      run: |
+        if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+          curl "$RENDER_DEPLOY_HOOK"
+        else
+          echo "Render deploy hook not configured"
+        fi
+
+    - name: Health check
+      run: |
+        sleep 10
+        for i in {1..30}; do
+          if curl -f https://octatecode-backend.onrender.com/api/health; then
+            echo "Deployment successful"
+            exit 0
+          fi
+          echo "Attempt $i failed, retrying..."
+          sleep 2
+        done
+        echo "Health check failed"
+        exit 1
+      continue-on-error: true

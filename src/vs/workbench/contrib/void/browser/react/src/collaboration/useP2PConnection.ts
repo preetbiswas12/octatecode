@@ -40,7 +40,7 @@ export const useP2PConnection = (
 
 	// Determine WebSocket URL
 	const getWSUrl = useCallback(() => {
-		const wsUrl = (window as any)['REACT_APP_P2P_WS'] || 'ws://localhost:3001';
+		const wsUrl = (window as any)['REACT_APP_P2P_WS'] || 'wss://octatecode-backend.onrender.com';
 		return wsUrl;
 	}, []);
 
