@@ -248,17 +248,32 @@ type ReactAccessor = ReturnType<typeof getReactAccessor>
 
 let reactAccessor_: ReactAccessor | null = null
 const _registerAccessor = (accessor: ServicesAccessor) => {
-	const reactAccessor = getReactAccessor(accessor)
-	reactAccessor_ = reactAccessor
+	try {
+		const reactAccessor = getReactAccessor(accessor)
+		reactAccessor_ = reactAccessor
+	} catch (err) {
+		console.warn('[Void Services] Failed to register accessor, services may not be available:', err);
+		// Don't throw - allow partial initialization
+	}
 }
 
 // -- services --
 export const useAccessor = () => {
 	if (!reactAccessor_) {
-		throw new Error(`⚠️ OctateCode useAccessor was called before _registerServices!`)
+		console.warn(`[useAccessor] Services not initialized yet, returning empty accessor`);
+		return { get: <S extends keyof ReactAccessor,>(service: S) => {
+			console.warn(`[useAccessor] Attempted to get ${String(service)} before initialization`);
+			return undefined;
+		} }
 	}
 
-	return { get: <S extends keyof ReactAccessor,>(service: S): ReactAccessor[S] => reactAccessor_![service] }
+	return { get: <S extends keyof ReactAccessor,>(service: S): ReactAccessor[S] => {
+		const svc = reactAccessor_![service];
+		if (!svc) {
+			console.warn(`[useAccessor] Service ${String(service)} is undefined`);
+		}
+		return svc;
+	} }
 }
 
 
@@ -372,7 +387,7 @@ export const useCommandBarURIListener = (listener: (uri: URI) => void) => {
 };
 export const useCommandBarState = () => {
 	const accessor = useAccessor()
-	const commandBarService = accessor.get('IVoidCommandBarService')
+	const commandBarService = accessor.get('IVoidCommandBarService')!
 	const [s, ss] = useState({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
 	const listener = useCallback(() => {
 		ss({ stateOfURI: commandBarService.stateOfURI, sortedURIs: commandBarService.sortedURIs });
@@ -387,7 +402,7 @@ export const useCommandBarState = () => {
 // roughly gets the active URI - this is used to get the history of recent URIs
 export const useActiveURI = () => {
 	const accessor = useAccessor()
-	const commandBarService = accessor.get('IVoidCommandBarService')
+	const commandBarService = accessor.get('IVoidCommandBarService')!
 	const [s, ss] = useState(commandBarService.activeURI)
 	useEffect(() => {
 		const listener = () => { ss(commandBarService.activeURI) }
@@ -402,7 +417,7 @@ export const useActiveURI = () => {
 
 export const useMCPServiceState = () => {
 	const accessor = useAccessor()
-	const mcpService = accessor.get('IMCPService')
+	const mcpService = accessor.get('IMCPService')!
 	const [s, ss] = useState(mcpService.state)
 	useEffect(() => {
 		const listener = () => { ss(mcpService.state) }
@@ -416,7 +431,7 @@ export const useMCPServiceState = () => {
 
 export const useIsOptedOut = () => {
 	const accessor = useAccessor()
-	const storageService = accessor.get('IStorageService')
+	const storageService = accessor.get('IStorageService')!
 
 	const getVal = useCallback(() => {
 		return storageService.getBoolean(OPT_OUT_KEY, StorageScope.APPLICATION, false)

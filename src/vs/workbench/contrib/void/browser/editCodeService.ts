@@ -285,13 +285,13 @@ class EditCodeService extends Disposable implements IEditCodeService {
 	// 				id: 'void.onerror.opensettings',
 	// 				enabled: true,
 	// 				label: `Open Void's settings`,
-	// 				tooltip: '',
-	// 				class: undefined,
-	// 				run: () => { this._commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID) }
-	// 			}]
-	// 		},
-	// 		source: details ? `(Hold ${isMacintosh ? 'Option' : 'Alt'} to hover) - ${details}\n\nIf this persists, feel free to [report](https://github.com/voideditor/void/issues/new) it.` : undefined
-	// 	})
+	// 					tooltip: '',
+	// 					class: undefined,
+	// 					run: () => { this._commandService.executeCommand(VOID_OPEN_SETTINGS_ACTION_ID) }
+	// 				}],
+	// 			},
+	// 			source: details ? `(Hold ${isMacintosh ? 'Option' : 'Alt'} to hover) - ${details}\n\nIf this persists, feel free to report it to the team.` : undefined
+	// 		})
 	// }
 
 

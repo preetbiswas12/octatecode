@@ -3,6 +3,16 @@
  *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
  *--------------------------------------------------------------------------------------*/
 
+// platform shims
+import './sharedArrayBufferShim.js'
+
+// default P2P endpoints for frontend (overridable via window.VOID_P2P_* globals)
+const win = typeof window !== 'undefined' ? (window as any) : undefined
+if (win) {
+	// Embed hosted P2P signaling defaults for packaged app; override via window globals if needed.
+	win.VOID_P2P_API_BASE_URL = win.VOID_P2P_API_BASE_URL || 'https://p2p-backend-q6s7.onrender.com/api'
+	win.VOID_P2P_WS_URL = win.VOID_P2P_WS_URL || 'wss://p2p-backend-q6s7.onrender.com'
+}
 
 // register inline diffs
 import './editCodeService.js'

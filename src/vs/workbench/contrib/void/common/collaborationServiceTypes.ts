@@ -12,6 +12,7 @@ export enum CollaborationStatus {
 	IDLE = 'idle',
 	CONNECTING = 'connecting',
 	CONNECTED = 'connected',
+	RECONNECTING = 'reconnecting',
 	DISCONNECTED = 'disconnected',
 	ERROR = 'error',
 }

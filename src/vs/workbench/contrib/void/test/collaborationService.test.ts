@@ -107,53 +107,54 @@ suite('CollaborationService', () => {
 	suite('PeerPresence', () => {
 		test('should create valid peer presence', function () {
 			const peer: PeerPresence = {
-				peerId: 'peer-123',
 				userId: 'user-456',
-				name: 'Test User',
+				userName: 'Test User',
+				isHost: false,
+				connectedAt: Date.now(),
 				color: '#FF5733',
 				isOnline: true,
-				currentFile: 'src/test.ts',
-				cursorPosition: { line: 10, character: 5 },
-				lastSeen: Date.now(),
+				lastHeartbeat: Date.now(),
 			};
 
-			assert.strictEqual(peer.peerId, 'peer-123');
-			assert.strictEqual(peer.name, 'Test User');
+			assert.strictEqual(peer.userId, 'user-456');
+			assert.strictEqual(peer.userName, 'Test User');
 			assert.ok(peer.isOnline);
-			assert.strictEqual(peer.cursorPosition?.line, 10);
+			assert.strictEqual(peer.color, '#FF5733');
 		});
 
 		test('should track peer online status', function () {
 			const peers = new Map<string, PeerPresence>();
 
 			const peer1: PeerPresence = {
-				peerId: 'peer-1',
 				userId: 'user-1',
-				name: 'User 1',
+				userName: 'User 1',
+				isHost: false,
+				connectedAt: Date.now(),
 				color: '#FF0000',
 				isOnline: true,
-				lastSeen: Date.now(),
+				lastHeartbeat: Date.now(),
 			};
 
 			const peer2: PeerPresence = {
-				peerId: 'peer-2',
 				userId: 'user-2',
-				name: 'User 2',
+				userName: 'User 2',
+				isHost: false,
+				connectedAt: Date.now(),
 				color: '#00FF00',
 				isOnline: true,
-				lastSeen: Date.now(),
+				lastHeartbeat: Date.now(),
 			};
 
-			peers.set(peer1.peerId, peer1);
-			peers.set(peer2.peerId, peer2);
+			peers.set(peer1.userId, peer1);
+			peers.set(peer2.userId, peer2);
 
 			// Peer goes offline
 			peer1.isOnline = false;
-			peer1.lastSeen = Date.now();
+			peer1.lastHeartbeat = Date.now();
 
 			const onlinePeers = Array.from(peers.values()).filter(p => p.isOnline);
 			assert.strictEqual(onlinePeers.length, 1);
-			assert.strictEqual(onlinePeers[0].peerId, 'peer-2');
+			assert.strictEqual(onlinePeers[0].userId, 'user-2');
 		});
 	});
 

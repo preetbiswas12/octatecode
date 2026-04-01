@@ -232,6 +232,14 @@ const SimpleModelSettingsDialog = ({
 	for (const k of modelOverrideKeys) { if (defaultModelCapabilities[k]) partialDefaults[k] = defaultModelCapabilities[k] as any; }
 	const placeholder = JSON.stringify(partialDefaults, null, 2);
 
+	// Recommended override template to auto-populate when enabling the toggle
+	const recommendedOverrides: Partial<ModelOverrides> = {
+		contextWindow: 1048576,
+		reserveOutputTokenSpace: 8192,
+		supportsSystemMessage: 'separated',
+		specialToolFormat: 'gemini-style',
+	};
+
 	const [overrideEnabled, setOverrideEnabled] = useState<boolean>(() => !!currentOverrides);
 
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -283,8 +291,6 @@ const SimpleModelSettingsDialog = ({
 		onClose();
 	};
 
-	const sourcecodeOverridesLink = `https://github.com/voideditor/void/blob/2e5ecb291d33afbe4565921664fb7e183189c1c5/src/vs/workbench/contrib/void/common/modelCapabilities.ts#L146-L172`
-
 	return (
 		<div // Backdrop
 			className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999999]"
@@ -334,16 +340,11 @@ const SimpleModelSettingsDialog = ({
 					<span className="text-void-fg-3 text-sm">Override model defaults</span>
 				</div>
 
-				{/* Informational link */}
-				{overrideEnabled && <div className="text-sm text-void-fg-3 mb-4">
-					<ChatMarkdownRender string={`See the [sourcecode](${sourcecodeOverridesLink}) for a reference on how to set this JSON (advanced).`} chatMessageLocation={undefined} />
-				</div>}
-
 				<textarea
 					key={overrideEnabled + ''}
 					ref={textAreaRef}
 					className={`w-full min-h-[200px] p-2 rounded-sm border border-void-border-2 bg-void-bg-2 resize-none font-mono text-sm ${!overrideEnabled ? 'text-void-fg-3' : ''}`}
-					defaultValue={overrideEnabled && currentOverrides ? JSON.stringify(currentOverrides, null, 2) : placeholder}
+						defaultValue={overrideEnabled ? JSON.stringify(currentOverrides ?? recommendedOverrides, null, 2) : placeholder}
 					placeholder={placeholder}
 					readOnly={!overrideEnabled}
 				/>

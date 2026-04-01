@@ -12,20 +12,44 @@ import { ServicesAccessor } from '../../../../../../../editor/browser/editorExte
 
 export const mountFnGenerator = (Component: (params: any) => React.ReactNode) => (rootElement: HTMLElement, accessor: ServicesAccessor, props?: any) => {
 	if (typeof document === 'undefined') {
-		console.error('index.tsx error: document was undefined')
+		console.error('[Mount] Error: document was undefined')
 		return
 	}
 
-	const disposables = _registerServices(accessor)
+	let disposables: ReturnType<typeof _registerServices> | null = null
+	try {
+		disposables = _registerServices(accessor)
+	} catch (err) {
+		console.error('[Mount] Error registering services:', err);
+		// Continue anyway - services may partially work
+		disposables = []
+	}
 
 	const root = ReactDOM.createRoot(rootElement)
 
 	const rerender = (props?: any) => {
-		root.render(<Component {...props} />); // tailwind dark theme indicator
+		try {
+			root.render(<Component {...props} />);
+		} catch (err) {
+			console.error('[Mount] Error rendering component:', err);
+		}
 	}
+
 	const dispose = () => {
-		root.unmount();
-		disposables.forEach(d => d.dispose());
+		try {
+			root.unmount();
+		} catch (err) {
+			console.warn('[Mount] Error unmounting root:', err);
+		}
+		if (disposables) {
+			disposables.forEach(d => {
+				try {
+					d.dispose();
+				} catch (err) {
+					console.warn('[Mount] Error disposing resource:', err);
+				}
+			});
+		}
 	}
 
 	rerender(props)

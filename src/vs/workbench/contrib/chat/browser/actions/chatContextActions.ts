@@ -22,6 +22,7 @@ import { AbstractGotoSymbolQuickAccessProvider, IGotoSymbolQuickPickItem } from 
 import { localize, localize2 } from '../../../../../nls.js';
 import { Action2, IAction2Options, MenuId, registerAction2 } from '../../../../../platform/actions/common/actions.js';
 import { IClipboardService } from '../../../../../platform/clipboard/common/clipboardService.js';
+import { IFileDialogService } from '../../../../../platform/dialogs/common/dialogs.js';
 import { ICommandService } from '../../../../../platform/commands/common/commands.js';
 import { ContextKeyExpr, IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
 import { IFileService } from '../../../../../platform/files/common/files.js';
@@ -70,6 +71,7 @@ import { ATTACH_PROMPT_ACTION_ID, AttachPromptAction, IChatAttachPromptActionOpt
 export function registerChatContextActions() {
 	registerAction2(AttachContextAction);
 	registerAction2(AttachFileToChatAction);
+	registerAction2(AttachImageFromDiskAction);
 	registerAction2(AttachFolderToChatAction);
 	registerAction2(AttachSelectionToChatAction);
 	registerAction2(AttachFileToEditingSessionAction);
@@ -340,6 +342,59 @@ class AttachFolderToChatAction extends AttachResourceAction {
 				variablesService.attachContext('folder', folder, ChatAgentLocation.Panel);
 			}
 		}
+	}
+}
+
+class AttachImageFromDiskAction extends Action2 {
+
+	static readonly ID = 'workbench.action.chat.attachImageFromDisk';
+
+	constructor() {
+		super({
+			id: AttachImageFromDiskAction.ID,
+			title: localize2('workbench.action.chat.attachImageFromDisk.label', "Add Image from Disk"),
+			icon: Codicon.fileMedia,
+			category: CHAT_CATEGORY,
+			menu: [{
+				id: MenuId.ChatInputAttachmentToolbar,
+				group: 'navigation',
+				order: 1,
+				when: ChatContextKeys.inChatInput,
+			}],
+		});
+	}
+
+	override async run(accessor: ServicesAccessor, ...args: any[]): Promise<void> {
+		const fileDialogService = accessor.get(IFileDialogService);
+		const variablesService = accessor.get(IChatVariablesService);
+		const widgetService = accessor.get(IChatWidgetService);
+		const viewsService = accessor.get(IViewsService);
+
+		const widget = widgetService.lastFocusedWidget ?? await showChatView(viewsService);
+		if (!widget) {
+			return;
+		}
+
+		const result = await fileDialogService.showOpenDialog({
+			canSelectMany: true,
+			openLabel: localize('chat.attachImageOpen', 'Add to Chat'),
+			filters: [
+				{
+					name: localize('chat.imageFiles', 'Image Files'),
+					extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'],
+				}
+			],
+		});
+
+		if (!result || !result.length) {
+			return;
+		}
+
+		for (const uri of result) {
+			await variablesService.attachContext('file', uri, widget.location);
+		}
+
+		widget.focusInput();
 	}
 }
 

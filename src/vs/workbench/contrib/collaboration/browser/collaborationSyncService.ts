@@ -26,7 +26,6 @@ export class CollaborationSyncService {
 	private _sessionId: string | null = null;
 	private _userId: string = '';
 	private _roomId: string = '';
-	private _userName: string = '';
 	private _authToken: string = '';
 	private _reconnectAttempts: number = 0;
 	private _reconnectDelay: number = 10; // milliseconds

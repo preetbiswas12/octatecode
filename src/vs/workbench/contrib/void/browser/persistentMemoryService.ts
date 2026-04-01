@@ -19,8 +19,8 @@ export class PersistentMemoryService extends Disposable implements IPersistentMe
 		channelClient: IChannelClient,
 	) {
 		super();
-		this.channel = channelClient.getChannel<IChannel>('persistentMemory');
-		this.llmChannel = channelClient.getChannel<IChannel>('sendLLMMessage');
+		this.channel = channelClient.getChannel<IChannel>('void-channel-persistentMemory');
+		this.llmChannel = channelClient.getChannel<IChannel>('void-channel-llmMessage');
 	}
 
 	async getOrCreateThread(folderPath: string): Promise<ThreadInfo> {
