@@ -47,6 +47,12 @@ const VoidIcon = () => {
 	const divRef = useRef<HTMLDivElement | null>(null)
 
 	useEffect(() => {
+		// Safely handle missing theme service
+		if (!themeService) {
+			console.warn('[Void Onboarding] Theme service not available');
+			return;
+		}
+
 		// void icon style
 		const updateTheme = () => {
 			const theme = themeService.getColorTheme().type
@@ -60,7 +66,7 @@ const VoidIcon = () => {
 		updateTheme()
 		const d = themeService.onDidColorThemeChange(updateTheme)
 		return () => d.dispose()
-	}, [])
+	}, [themeService])
 
 	return <div ref={divRef} className='@@void-void-icon' />
 }

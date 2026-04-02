@@ -258,4 +258,28 @@
 	} else {
 		(window as any).vscode = globals;
 	}
+
+	// Inject collaboration backend configuration from environment
+	resolveConfiguration.then((config: any) => {
+		const backendUrl = config.userEnv.REACT_APP_P2P_HTTP ||
+			process.env.REACT_APP_P2P_HTTP ||
+			'http://localhost:3000';
+		const backendHost = config.userEnv.REACT_APP_P2P_HTTP
+			? new URL(config.userEnv.REACT_APP_P2P_HTTP).host
+			: 'localhost:3000';
+
+		// Expose to window for collaboration services
+		(window as any).__COLLABORATION_BACKEND_URL__ = backendUrl;
+		(window as any).__COLLABORATION_BACKEND_HOST__ = backendHost;
+
+		console.log('✓ Collaboration backend configured:', {
+			url: backendUrl,
+			host: backendHost
+		});
+	}).catch((error: any) => {
+		console.warn('⚠️ Failed to configure collaboration backend:', error);
+		// Set defaults for offline/dev mode
+		(window as any).__COLLABORATION_BACKEND_URL__ = 'http://localhost:3000';
+		(window as any).__COLLABORATION_BACKEND_HOST__ = 'localhost:3000';
+	});
 }());

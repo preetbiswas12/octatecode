@@ -852,8 +852,62 @@ const RedoOnboardingButton = ({ className }: { className?: string }) => {
 	>
 		See onboarding screen?
 	</div>
-
 }
+
+const FullSessionResetButton = ({ className }: { className?: string }) => {
+	const accessor = useAccessor()
+	const [isResetting, setIsResetting] = useState(false)
+
+	const handleFullReset = async () => {
+		if (!confirm('⚠️ This will reset your entire session, clear all data, and generate new user/device IDs. Continue?')) {
+			return;
+		}
+
+		setIsResetting(true);
+		try {
+			console.log('[SessionReset] Initiating full session reset from UI...');
+
+			// Clear all stored data including onboarding state
+			const storageService = accessor.get('IStorageService')
+			const voidSettingsService = accessor.get('IVoidSettingsService')
+
+			// Get all storage keys and clear them
+			const allKeys = storageService.keys({ scope: 1 }); // StorageScope.APPLICATION = 1
+			for (const key of allKeys) {
+				storageService.remove(key, { scope: 1 });
+			}
+
+			// Clear workspace scope
+			const workspaceKeys = storageService.keys({ scope: 2 }); // StorageScope.WORKSPACE = 2
+			for (const key of workspaceKeys) {
+				storageService.remove(key, { scope: 2 });
+			}
+
+			// Reset onboarding
+			voidSettingsService.setGlobalSetting('isOnboardingComplete', false);
+
+			console.log('[SessionReset] ✓ Full reset complete - Reloading window');
+
+			// Reload to force fresh initialization
+			setTimeout(() => {
+				window.location.reload();
+			}, 500);
+		} catch (error) {
+			console.error('[SessionReset] Error during reset:', error);
+			setIsResetting(false);
+			alert('Failed to reset session. Check console for details.');
+		}
+	}
+
+	return <div
+		className={`text-void-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer ${className}`}
+		onClick={handleFullReset}
+		style={{ opacity: isResetting ? 0.5 : 1, pointerEvents: isResetting ? 'none' : 'auto' }}
+	>
+		{isResetting ? '⏳ Resetting...' : '🔄 Reset All Sessions & Data'}
+	</div>
+}
+
 
 
 
@@ -1174,7 +1228,10 @@ export const Settings = () => {
 
 						{/* Models section (formerly FeaturesTab) */}
 						<ErrorBoundary>
-							<RedoOnboardingButton />
+							<div className='flex flex-col gap-2'>
+								<RedoOnboardingButton />
+								<FullSessionResetButton />
+							</div>
 						</ErrorBoundary>
 
 						<div className='w-full h-[1px] my-4' />
