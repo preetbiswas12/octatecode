@@ -19,9 +19,28 @@ const OVERRIDE_VALUE = false;
 export const VoidOnboarding = () => {
 
 	const voidSettingsState = useSettingsState()
-	const isOnboardingComplete = voidSettingsState.globalSettings.isOnboardingComplete || OVERRIDE_VALUE
+	const isOnboardingComplete = voidSettingsState?.globalSettings?.isOnboardingComplete || OVERRIDE_VALUE
 
 	const isDark = useIsDark()
+
+	// Show loading state if settings not yet initialized
+	if (!voidSettingsState) {
+		return (
+			<div className={`@@void-scope`}>
+				<div
+					className={`
+						bg-void-bg-3 fixed top-0 right-0 bottom-0 left-0 width-full z-[99999]
+						opacity-100 pointer-events-auto
+					`}
+					style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+				>
+					<div style={{ textAlign: 'center', color: '#999' }}>
+						<div style={{ fontSize: '14px', marginBottom: '10px' }}>Initializing...</div>
+					</div>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className={`@@void-scope ${isDark ? 'dark' : ''}`}>
@@ -485,6 +504,15 @@ const VoidOnboardingContent = () => {
     const storageService = accessor.get('IStorageService')
 
 	const voidSettingsState = useSettingsState()
+
+	// Return loading state if services not yet available
+	if (!voidSettingsService || !voidSettingsState) {
+		return (
+			<div style={{ textAlign: 'center', color: '#999' }}>
+				<div style={{ fontSize: '14px' }}>Loading services...</div>
+			</div>
+		)
+	}
 
 	const [pageIndex, setPageIndex] = useState(0)
 
