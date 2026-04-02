@@ -842,7 +842,13 @@ const RedoOnboardingButton = ({ className }: { className?: string }) => {
 	const voidSettingsService = accessor.get('IVoidSettingsService')
 	return <div
 		className={`text-void-fg-4 flex flex-nowrap text-nowrap items-center hover:brightness-110 cursor-pointer ${className}`}
-		onClick={() => { voidSettingsService.setGlobalSetting('isOnboardingComplete', false) }}
+		onClick={() => {
+			voidSettingsService.setGlobalSetting('isOnboardingComplete', false);
+			// Reload window to ensure onboarding UI properly resets
+			setTimeout(() => {
+				window.location.reload();
+			}, 100);
+		}}
 	>
 		See onboarding screen?
 	</div>
