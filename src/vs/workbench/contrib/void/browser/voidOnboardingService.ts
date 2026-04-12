@@ -45,6 +45,7 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 				const configurationService = accessor.get(IConfigurationService);
 				const voidSettingsService = accessor.get(IVoidSettingsService);
 
+				// Check if this is a fresh install (no previous logs)
 				let previousLogsExist = false;
 				try {
 					const stat = await fileService.resolve(environmentService.logsHome);
@@ -55,30 +56,22 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 					// ignore errors resolving logs folder - treat as no previous logs
 				}
 
-				// Safely access settings with proper null checks
+				// Check if onboarding is already complete
 				let isOnboardingComplete = false;
 				try {
 					const globalSettings = voidSettingsService?.state?.globalSettings;
 					isOnboardingComplete = !!globalSettings?.isOnboardingComplete;
 				} catch (e) {
-					console.warn('[Void Onboarding] Settings not available yet, defaulting to not complete');
 					isOnboardingComplete = false;
 				}
 
-				// Check if user explicitly requested to show onboarding again
-				const forceShowOnboarding = storageService.get('void-force-show-onboarding', StorageScope.APPLICATION) === 'true';
-
-				console.log('[Void Onboarding] Debug:', { isOnboardingComplete, previousLogsExist, forceShowOnboarding, logsPath: environmentService.logsHome.fsPath });
-
-				if ((!isOnboardingComplete && !previousLogsExist) || forceShowOnboarding) {
-					// Fresh install / first run, OR user explicitly reset onboarding: mount onboarding overlay
-					console.log('[Void Onboarding] Mounting onboarding...');
-					// Clear the force flag after showing onboarding once
-					if (forceShowOnboarding) {
-						storageService.remove('void-force-show-onboarding', StorageScope.APPLICATION);
-					}
+				// Show onboarding only for fresh installs (no previous logs) where onboarding hasn't been completed
+				if (!isOnboardingComplete && !previousLogsExist) {
 					const onboardingContainer = h('div.void-onboarding-container').root;
 					workbench.appendChild(onboardingContainer);
+
+					// Pass accessor directly - it's valid within this invokeFunction context
+					// and will be used synchronously by the React component
 					const result = mountVoidOnboarding(onboardingContainer, accessor);
 					if (result && typeof result.dispose === 'function') {
 						this._register(toDisposable(result.dispose));
@@ -90,24 +83,21 @@ export class OnboardingContribution extends Disposable implements IWorkbenchCont
 						}
 					}));
 				} else {
-					// Not a fresh install or onboarding already complete. Ensure windows restore behavior
-					// so users return to where they left off.
+					// Not a fresh install - ensure windows restore behavior
 					try {
-						// Set a sensible default to restore previous windows/folders
 						await configurationService.updateValue('window.restoreWindows', 'all');
-						// Record that we've seen an existing installation so we don't prompt again
 						storageService.store('void-seen-previous-install', 'true', StorageScope.APPLICATION, StorageTarget.MACHINE);
 					} catch (e) {
-						// ignore failures to update configuration
+						// ignore failures
 					}
 				}
 			} catch (error) {
-				console.error('[Void Onboarding] Error during initialization:', error);
 				// Don't crash - allow workbench to continue
 			}
 		});
 	}
 }
 
-// Register the contribution to be initialized during the AfterRestored phase
-registerWorkbenchContribution2(OnboardingContribution.ID, OnboardingContribution, WorkbenchPhase.AfterRestored);
+// Register the contribution to be initialized during the Eventually phase
+// This ensures all services are registered before we try to use them
+registerWorkbenchContribution2(OnboardingContribution.ID, OnboardingContribution, WorkbenchPhase.Eventually);

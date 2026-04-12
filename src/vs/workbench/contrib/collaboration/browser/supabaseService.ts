@@ -31,30 +31,50 @@ export interface CollaborationSession {
 
 class SupabaseService {
 	// P2P Backend API endpoint (REQUIRED - no fallback to database)
-	private backendUrl: string;
+	private backendUrl_: string | null = null;
 
 	constructor() {
-		// Get P2P backend URL from window config (REQUIRED)
+		// Don't check the URL here - defer until first use
+		// This allows preload injection time to complete
+		console.log('[SupabaseService] Initializing (URL will be resolved on first use)');
+	}
+
+	/**
+	 * Get backend URL lazily - resolves on first use, not in constructor
+	 * This allows preload injection time to inject the URL
+	 */
+	private getBackendUrl(): string {
+		if (this.backendUrl_) {
+			return this.backendUrl_;
+		}
+
+		// Get P2P backend URL from window config (check now, after injection should have completed)
 		const envBackendUrl = (window as any).__COLLABORATION_BACKEND_URL__;
-		if (!envBackendUrl && !window.location.hostname.includes('localhost')) {
+
+		// Check if we're in a development/local environment
+		const isDevelopment =
+			window.location.hostname === 'localhost' ||
+			window.location.hostname === '127.0.0.1' ||
+			window.location.hostname === '::1' ||
+			window.location.href.includes('vscode-file://');
+
+		if (!envBackendUrl && !isDevelopment) {
 			console.warn('⚠️ P2P Backend URL not configured. Set window.__COLLABORATION_BACKEND_URL__');
 		}
 
 		if (envBackendUrl) {
-			this.backendUrl = envBackendUrl;
+			this.backendUrl_ = envBackendUrl;
+			console.log('[SupabaseService] ✓ Using injected backend URL:', envBackendUrl);
 		} else {
 			// Fallback: construct from current location
 			const protocol = window.location.protocol;
 			const host = (window as any).__COLLABORATION_BACKEND_HOST__ || window.location.host;
-			this.backendUrl = `${protocol}//${host}`;
+			this.backendUrl_ = `${protocol}//${host}`;
+			console.log('[SupabaseService] Using fallback backend URL:', this.backendUrl_);
 		}
-	}
 
-	/**
-	 * Get environment variable safely
-	 * In browser context, this won't have access to process.env
-	 * Instead, we cache config from backend /api/config endpoint
-	 */
+		return this.backendUrl_!;
+	}
 
 	/**
 	 * Initialize P2P service
@@ -63,7 +83,7 @@ class SupabaseService {
 	async initialize(): Promise<void> {
 		try {
 			// Test P2P backend connectivity
-			const response = await fetch(`${this.backendUrl}/health`, {
+			const response = await fetch(`${this.getBackendUrl()}/health`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
@@ -71,7 +91,7 @@ class SupabaseService {
 			if (response.ok) {
 				const health = await response.json();
 				console.log('✓ P2P Backend connected');
-				console.log('  - Backend URL:', this.backendUrl);
+				console.log('  - Backend URL:', this.getBackendUrl());
 				console.log('  - Status:', health.status);
 				console.log('  - Memory:', health.memory);
 			} else {
@@ -128,7 +148,7 @@ class SupabaseService {
 		try {
 			// Try backend API first using correct endpoint: POST /api/rooms
 			try {
-				const backendResponse = await fetch(`${this.backendUrl}/api/rooms`, {
+				const backendResponse = await fetch(`${this.getBackendUrl()}/api/rooms`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(roomData)
@@ -158,7 +178,7 @@ class SupabaseService {
 	async joinRoom(roomId: string, userId: string, userName: string): Promise<CollaborationRoom> {
 		try {
 			// First verify room exists using GET
-			const getResponse = await fetch(`${this.backendUrl}/api/rooms/${roomId}`, {
+			const getResponse = await fetch(`${this.getBackendUrl()}/api/rooms/${roomId}`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
@@ -171,7 +191,7 @@ class SupabaseService {
 			console.log('✓ Room found:', roomData);
 
 			// Add participant to room using POST
-			const joinResponse = await fetch(`${this.backendUrl}/api/rooms/${roomId}/join`, {
+			const joinResponse = await fetch(`${this.getBackendUrl()}/api/rooms/${roomId}/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -200,8 +220,8 @@ class SupabaseService {
 	async endSession(roomId: string, userId?: string): Promise<void> {
 		try {
 			const endpoint = userId
-				? `${this.backendUrl}/api/rooms/${roomId}/leave`
-				: `${this.backendUrl}/api/rooms/${roomId}/leave`;
+				? `${this.getBackendUrl()}/api/rooms/${roomId}/leave`
+				: `${this.getBackendUrl()}/api/rooms/${roomId}/leave`;
 
 			const response = await fetch(endpoint, {
 				method: 'POST',
@@ -230,7 +250,7 @@ class SupabaseService {
 	async getRoom(roomId: string): Promise<CollaborationRoom | null> {
 		try {
 			// P2P backend API: GET /api/rooms/:roomId
-			const response = await fetch(`${this.backendUrl}/api/rooms/${roomId}`, {
+			const response = await fetch(`${this.getBackendUrl()}/api/rooms/${roomId}`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
@@ -260,7 +280,7 @@ class SupabaseService {
 		try {
 			// P2P backend API: GET /api/rooms/:roomId/peers
 			const response = await fetch(
-				`${this.backendUrl}/api/rooms/${roomId}/peers`,
+				`${this.getBackendUrl()}/api/rooms/${roomId}/peers`,
 				{
 					method: 'GET',
 					headers: { 'Content-Type': 'application/json' }
@@ -295,7 +315,7 @@ class SupabaseService {
 		try {
 			const operationId = `op-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-			const response = await fetch(`${this.backendUrl}/api/rooms/${roomId}/operations`, {
+			const response = await fetch(`${this.getBackendUrl()}/api/rooms/${roomId}/operations`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -326,7 +346,7 @@ class SupabaseService {
 		try {
 			// P2P backend API: GET /api/rooms/:roomId/operations
 			const response = await fetch(
-				`${this.backendUrl}/api/rooms/${roomId}/operations`,
+				`${this.getBackendUrl()}/api/rooms/${roomId}/operations`,
 				{
 					method: 'GET',
 					headers: { 'Content-Type': 'application/json' }
