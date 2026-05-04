@@ -140,7 +140,7 @@ fetch('./test-suite.js').then(r => r.text()).then(eval)
 
 ### What Will Be Fixed First
 1. Critical console errors
-2. Service initialization issues  
+2. Service initialization issues
 3. UI polishing (rough edges)
 4. Data persistence verification
 

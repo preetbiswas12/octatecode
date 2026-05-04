@@ -60,7 +60,7 @@ This will run 10 automated tests and report results.
 2. Click "Create Room"
 3. Enter room name: `OctateCode-Test`
 4. Enter your name: `TestUser`
-5. Click "Create" 
+5. Click "Create"
 6. Verify room ID appears
 7. Copy room ID (should work)
 8. Open second window (in same instance or different)
@@ -182,7 +182,7 @@ When you find an issue:
 2. ...
 3. ...
 
-**Expected**: 
+**Expected**:
 [What should happen]
 
 **Actual**:

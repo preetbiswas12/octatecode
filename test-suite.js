@@ -52,7 +52,7 @@ try {
 
 // Test 4: Settings Panel Accessible
 try {
-  const settingsBtn = document.querySelector('button[title*="Settings"]') || 
+  const settingsBtn = document.querySelector('button[title*="Settings"]') ||
                       document.querySelector('button[aria-label*="Settings"]');
   testLog('Settings Button Visible', !!settingsBtn, settingsBtn ? 'Found' : 'Button not visible');
 } catch (e) {
@@ -85,7 +85,7 @@ try {
 
 // Test 8: React Components Mounted
 try {
-  const reactRoot = document.querySelector('[data-react-root]') || 
+  const reactRoot = document.querySelector('[data-react-root]') ||
                     document.querySelector('[class*="void-scope"]');
   testLog('React Components Mounted', !!reactRoot, reactRoot ? 'Found' : 'Not mounted');
 } catch (e) {
